@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Desk — Independent Equity Coverage</title>
+<meta name="description" content="Independent equity research coverage log — a self-directed practice applying a fixed 20-metric framework across margins, valuation, and growth.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e141b;
+  --surface:#161e27;
+  --surface2:#1c2530;
+  --border:#2a3542;
+  --border2:#38455280;
+  --text:#eef1f3;
+  --text2:#93a1ac;
+  --text3:#5a6672;
+  --brass:#c9a05a;
+  --brass-dim:#8a6f42;
+  --sage:#7fae83;
+  --rose:#c2685f;
+  --blue:#6f93b3;
+  --brass-bg:rgba(201,160,90,0.09);
+  --sage-bg:rgba(127,174,131,0.09);
+  --rose-bg:rgba(194,104,95,0.09);
+  --blue-bg:rgba(111,147,179,0.09);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  font-size:15px;
+  line-height:1.6;
+}
+body::before{
+  content:'';
+  position:fixed; inset:0;
+  background-image:radial-gradient(circle at 15% 0%, rgba(201,160,90,0.05) 0%, transparent 45%),
+                    radial-gradient(circle at 85% 10%, rgba(111,147,179,0.05) 0%, transparent 45%);
+  pointer-events:none; z-index:0;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:0 28px; position:relative; z-index:1;}
+
+/* ── MASTHEAD ── */
+.masthead{ padding:64px 0 0; }
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--brass); margin-bottom:20px;
+  display:flex; align-items:center; gap:10px;
+}
+.eyebrow::before{ content:''; width:22px; height:1px; background:var(--brass); }
+h1{
+  font-family:'Fraunces',serif;
+  font-optical-sizing:auto;
+  font-size:clamp(40px,6.5vw,72px);
+  font-weight:600;
+  letter-spacing:-1px;
+  line-height:1.02;
+  color:var(--text);
+  margin-bottom:22px;
+}
+h1 em{ font-style:italic; color:var(--brass); font-weight:500; }
+.lede{
+  max-width:620px;
+  font-size:16px;
+  color:var(--text2);
+  line-height:1.75;
+  margin-bottom:32px;
+}
+.byline{
+  display:flex; gap:24px; flex-wrap:wrap; align-items:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px; color:var(--text3);
+  padding-bottom:36px;
+  border-bottom:1px solid var(--border);
+}
+.byline a{ color:var(--text2); text-decoration:none; border-bottom:1px solid var(--border2); padding-bottom:2px; transition:color 0.2s, border-color 0.2s; }
+.byline a:hover{ color:var(--brass); border-color:var(--brass); }
+
+/* ── TICKER MARQUEE ── */
+.ticker{
+  overflow:hidden;
+  border-bottom:1px solid var(--border);
+  padding:16px 0;
+  position:relative;
+  z-index:1;
+  mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  -webkit-mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.ticker-track{
+  display:flex; gap:0; width:max-content;
+  animation:scroll 38s linear infinite;
+}
+@media(prefers-reduced-motion:reduce){ .ticker-track{ animation:none; } }
+@keyframes scroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+.tick{
+  font-family:'IBM Plex Mono',monospace; font-size:12px;
+  color:var(--text2); white-space:nowrap;
+  padding:0 22px; border-right:1px solid var(--border);
+  display:flex; align-items:center; gap:8px;
+}
+.tick b{ color:var(--text); font-weight:600; }
+.tick .sec{ color:var(--text3); }
+
+/* ── SECTION HEADS ── */
+.section-hd{
+  display:flex; align-items:baseline; gap:16px;
+  margin:64px 0 28px;
+}
+.section-hd h2{
+  font-family:'Fraunces',serif; font-size:22px; font-weight:600; color:var(--text);
+}
+.section-hd .n{
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text3);
+  flex:1; text-align:right; letter-spacing:1px;
+}
+
+/* ── METHODOLOGY ── */
+.method{
+  display:grid; grid-template-columns:1.1fr 1fr; gap:40px;
+  margin-bottom:8px;
+}
+@media(max-width:760px){ .method{ grid-template-columns:1fr; } }
+.method p{ color:var(--text2); font-size:14px; line-height:1.8; margin-bottom:14px; }
+.method p:last-child{ margin-bottom:0; }
+.method strong{ color:var(--text); font-weight:600; }
+
+.weights{ display:flex; flex-direction:column; gap:16px; align-self:start; }
+.w-row{ display:flex; align-items:center; gap:14px; }
+.w-label{ font-size:12px; color:var(--text2); width:96px; flex-shrink:0; }
+.w-track{ flex:1; height:8px; background:var(--surface2); border-radius:99px; overflow:hidden; border:1px solid var(--border); }
+.w-fill{ height:100%; border-radius:99px; }
+.w-fill.growth{ width:35%; background:var(--sage); }
+.w-fill.fin{ width:35%; background:var(--blue); }
+.w-fill.val{ width:30%; background:var(--brass); }
+.w-pct{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text2); width:34px; text-align:right; }
+
+/* ── COVERAGE GRID ── */
+.grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:18px; margin-bottom:20px; }
+@media(max-width:700px){ .grid{ grid-template-columns:1fr; } }
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-top:3px solid var(--border2);
+  border-radius:12px;
+  padding:26px;
+  text-decoration:none;
+  color:inherit;
+  display:block;
+  transition:transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  position:relative;
+}
+.card:hover{ transform:translateY(-3px); box-shadow:0 14px 34px rgba(0,0,0,0.35); }
+.card.aero{ border-top-color:var(--brass); }
+.card.software{ border-top-color:var(--blue); }
+.card.energy{ border-top-color:var(--sage); }
+.card.health{ border-top-color:var(--rose); }
+
+.card-tag{
+  display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:9px;
+  letter-spacing:1.5px; text-transform:uppercase; padding:4px 9px; border-radius:4px;
+  margin-bottom:14px;
+}
+.card.aero .card-tag{ background:var(--brass-bg); color:var(--brass); }
+.card.software .card-tag{ background:var(--blue-bg); color:var(--blue); }
+.card.energy .card-tag{ background:var(--sage-bg); color:var(--sage); }
+.card.health .card-tag{ background:var(--rose-bg); color:var(--rose); }
+
+.card-title{ font-family:'Fraunces',serif; font-size:21px; font-weight:600; margin-bottom:4px; color:var(--text); }
+.card-ticker{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text3); margin-bottom:14px; }
+.card-body{ font-size:13px; color:var(--text2); line-height:1.65; margin-bottom:18px; }
+.card-meta{
+  display:flex; justify-content:space-between; align-items:center;
+  padding-top:16px; border-top:1px solid var(--border);
+  font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text3);
+}
+.card-arrow{ color:var(--text2); transition:transform 0.2s, color 0.2s; }
+.card:hover .card-arrow{ transform:translateX(3px); color:var(--brass); }
+
+/* pending / placeholder cards */
+.card.pending{
+  border-style:dashed; border-top-style:solid;
+  cursor:default;
+}
+.card.pending:hover{ transform:none; box-shadow:none; }
+.card.pending .card-title{ color:var(--text2); }
+.card.pending .card-body{ color:var(--text3); }
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--border);
+  margin-top:56px; padding:28px 0 48px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px; color:var(--text3); line-height:1.9;
+}
+footer a{ color:var(--text2); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="eyebrow">Independent Analyst · Equity Coverage Log</div>
+    <h1>Research<br><em>Desk.</em></h1>
+    <p class="lede">A self-directed equity research practice. Every name in coverage is run through the same fixed framework — 20+ metrics spanning margins, valuation multiples, and growth &amp; return ratios — then scored for risk and upside before a position is ever taken.</p>
+    <div class="byline">
+      <span>Coverage since 2025</span>
+      <span>Growth &amp; special-situation equities</span>
+      <a href="#">Résumé ↗</a>
+      <a href="#">LinkedIn ↗</a>
+      <a href="mailto:you@example.com">Email ↗</a>
+    </div>
+  </div>
+
+  <div class="ticker">
+    <div class="ticker-track" id="tickerTrack">
+      <!-- populated via duplicate block below for seamless loop -->
+    </div>
+  </div>
+
+  <div class="section-hd"><h2>Framework</h2><span class="n">SCORING MODEL</span></div>
+  <div class="method">
+    <div>
+      <p>Each report opens with three composite scores — <strong>Risk</strong>, <strong>Growth Potential</strong>, and <strong>Overall</strong> — built from a weighted blend of growth trajectory, financial health, and valuation discipline.</p>
+      <p>Traditional screener ranges (P/E, P/S, EV/EBITDA) are applied but not treated as automatic disqualifiers: a pre-profitability or premium-multiple name can still score well if growth and balance-sheet quality justify the premium. The goal is a repeatable, honest framework — not a model that only ever says buy.</p>
+    </div>
+    <div class="weights">
+      <div class="w-row"><div class="w-label">Growth</div><div class="w-track"><div class="w-fill growth"></div></div><div class="w-pct">35%</div></div>
+      <div class="w-row"><div class="w-label">Financials</div><div class="w-track"><div class="w-fill fin"></div></div><div class="w-pct">35%</div></div>
+      <div class="w-row"><div class="w-label">Valuation</div><div class="w-track"><div class="w-fill val"></div></div><div class="w-pct">30%</div></div>
+    </div>
+  </div>
+
+  <div class="section-hd"><h2>Coverage</h2><span class="n">2 ACTIVE · 4 PENDING</span></div>
+  <div class="grid">
+
+    <a class="card software" href="reports/servicenow-analysis.html">
+      <div class="card-tag">Enterprise Software · AI</div>
+      <div class="card-title">ServiceNow</div>
+      <div class="card-ticker">NYSE: NOW — Deep Stock Analysis</div>
+      <div class="card-body">Full valuation, financial health, and growth workup. Overall score 74/100 — a premium-multiple compounder where PEG and forward earnings tell a different story than trailing P/E.</div>
+      <div class="card-meta"><span>Updated May 2026</span><span class="card-arrow">Open report →</span></div>
+    </a>
+
+    <a class="card software" href="reports/servicenow-2026-plan.html">
+      <div class="card-tag">Enterprise Software · AI</div>
+      <div class="card-title">ServiceNow</div>
+      <div class="card-ticker">NYSE: NOW — FY2026 Year Plan</div>
+      <div class="card-body">Quarter-by-quarter forward roadmap tracking the Armis/Veza integration, AI monetization cadence, and capital return program against a live outlook score.</div>
+      <div class="card-meta"><span>Updated May 2026</span><span class="card-arrow">Open report →</span></div>
+    </a>
+
+    <div class="card aero pending">
+      <div class="card-tag">Aerospace · Space</div>
+      <div class="card-title">Rocket Lab</div>
+      <div class="card-ticker">NASDAQ: RKLB — Growth &amp; Catalyst Watch</div>
+      <div class="card-body">Coverage in progress — tracking toward the Neutron maiden flight as the central binary catalyst.</div>
+      <div class="card-meta"><span>Report pending</span><span></span></div>
+    </div>
+
+    <div class="card aero pending">
+      <div class="card-tag">Aerospace · Defense</div>
+      <div class="card-title">Kratos Defense</div>
+      <div class="card-ticker">NASDAQ: KTOS — Entry-Zone Watch</div>
+      <div class="card-body">Coverage in progress — monitoring quarterly earnings against a defined entry zone before initiating.</div>
+      <div class="card-meta"><span>Report pending</span><span></span></div>
+    </div>
+
+    <div class="card health pending">
+      <div class="card-tag">Healthcare · Dental</div>
+      <div class="card-title">Dentsply Sirona</div>
+      <div class="card-ticker">NASDAQ: XRAY — Restructuring Thesis</div>
+      <div class="card-body">Coverage in progress — tracking a restructuring &amp; buyback catalyst thesis.</div>
+      <div class="card-meta"><span>Report pending</span><span></span></div>
+    </div>
+
+    <div class="card energy pending">
+      <div class="card-tag">Energy · Solar</div>
+      <div class="card-title">T1 Energy</div>
+      <div class="card-ticker">NYSE: TE — Pre-Profitability Manufacturer</div>
+      <div class="card-body">Coverage in progress — US solar manufacturing name with notable institutional disclosure activity.</div>
+      <div class="card-meta"><span>Report pending</span><span></span></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div>Research Desk — Independent equity research portfolio. For informational and demonstrative purposes only. Not financial advice.</div>
+    <div>Data sourced from SEC filings, company disclosures, and public market data at time of writing.</div>
+  </footer>
+
+</div>
+
+<script>
+  // Build seamless ticker loop from a single source list (duplicated once)
+  const names = [
+    {t:"RKLB", s:"Aerospace / Space"},
+    {t:"KTOS", s:"Defense"},
+    {t:"NOW", s:"Enterprise Software"},
+    {t:"XRAY", s:"Healthcare"},
+    {t:"TE", s:"Solar / Energy"},
+    {t:"URA · URNM · NLR", s:"Nuclear Sector"}
+  ];
+  const track = document.getElementById('tickerTrack');
+  const html = names.map(n => `<div class="tick"><b>${n.t}</b><span class="sec">${n.s}</span></div>`).join('');
+  track.innerHTML = html + html; // duplicate for seamless -50% loop
+</script>
+
+</body>
+</html>

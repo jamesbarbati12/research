@@ -218,11 +218,7 @@ footer a{ color:var(--text2); }
     </div>
   </div>
 
-  <div class="ticker">
-    <div class="ticker-track" id="tickerTrack">
-      <!-- populated via duplicate block below for seamless loop -->
-    </div>
-  </div>
+  
 
   <div class="section-hd"><h2>Framework</h2><span class="n">SCORING MODEL</span></div>
   <div class="method">
@@ -266,20 +262,7 @@ footer a{ color:var(--text2); }
 
 </div>
 
-<script>
-  // Build seamless ticker loop from a single source list (duplicated once)
-  const names = [
-    {t:"RKLB", s:"Aerospace / Space"},
-    {t:"KTOS", s:"Defense"},
-    {t:"NOW", s:"Enterprise Software"},
-    {t:"XRAY", s:"Healthcare"},
-    {t:"TE", s:"Solar / Energy"},
-    {t:"URA · URNM · NLR", s:"Nuclear Sector"}
-  ];
-  const track = document.getElementById('tickerTrack');
-  const html = names.map(n => `<div class="tick"><b>${n.t}</b><span class="sec">${n.s}</span></div>`).join('');
-  track.innerHTML = html + html; // duplicate for seamless -50% loop
-</script>
+
 
 </body>
 </html>

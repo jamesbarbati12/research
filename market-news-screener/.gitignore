@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+data/news_screener.db
+data/news_screener.db-wal
+data/news_screener.db-shm
+node_modules/
+frontend/dist/

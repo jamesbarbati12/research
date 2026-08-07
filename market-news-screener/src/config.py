@@ -11,6 +11,7 @@ DB_PATH = BASE_DIR / "data" / "news_screener.db"
 TIER_TABLE_PATH = BASE_DIR / "data" / "tier_table.json"
 
 FMP_API_KEY = os.environ.get("FMP_API_KEY", "").strip()
+FINNHUB_API_KEY = os.environ.get("FINNHUB_API_KEY", "").strip()
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
 
 POLL_INTERVAL_SECONDS = int(os.environ.get("POLL_INTERVAL_SECONDS", "75"))

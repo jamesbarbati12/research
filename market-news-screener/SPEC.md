@@ -28,14 +28,17 @@ tier table stay in sync.
 
 | Source | What | Auth | Poll interval |
 |---|---|---|---|
-| Financial Modeling Prep (FMP) | `/stable/news/stock-latest` (general news) + `/stable/news/press-releases-latest` | Free-tier API key (`FMP_API_KEY`) — **not yet configured, ask before enabling** | 60–90s (`POLL_INTERVAL_SECONDS`, default 75) |
+| Finnhub | `/news` (general market news) + `/company-news` (per-`WATCHLIST`-ticker) | Free-tier API key (`FINNHUB_API_KEY`), 60 calls/min, no card required | 60–90s (`POLL_INTERVAL_SECONDS`, default 75) |
+| Financial Modeling Prep (FMP) | `/stable/news/stock-latest` (general news) + `/stable/news/press-releases-latest` | Requires a **paid** FMP plan — FMP retired free-tier news access (legacy and current) in August 2025 | Same loop, 60–90s |
 | SEC EDGAR "current events" feed | Real-time 8-K / SC 13D / SC 13G filings, Atom/RSS | None — public, no key | Same loop, 60–90s |
 
-FMP requires a free-tier signup and API key. Nothing paid is enabled by
-default — `ingest.py` runs the SEC EDGAR leg unconditionally (no key needed)
-and skips the FMP leg with a warning if `FMP_API_KEY` is unset, so the system
-is runnable and shows live data out of the box. Per the task instructions,
-no paid tier/API should be added without asking first.
+Finnhub is the primary free news leg (FMP's free tier stopped including any
+news endpoint partway through this project — confirmed via a live `402`/
+legacy-endpoint error against a real free-tier key). Nothing paid is enabled
+by default — `ingest.py` runs the SEC EDGAR leg unconditionally (no key
+needed), the Finnhub leg if `FINNHUB_API_KEY` is set, and skips FMP with a
+warning unless `FMP_API_KEY` is set to a key on a paid plan. Per the task
+instructions, no paid tier/API should be added without asking first.
 
 ## Categories & tiers
 

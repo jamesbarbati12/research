@@ -1,9 +1,12 @@
-"""Poll FMP news + press releases and SEC EDGAR's real-time filing feed,
-store raw items, then trigger live scoring.
+"""Poll FMP news + press releases, Finnhub news, and SEC EDGAR's real-time
+filing feed, store raw items, then trigger live scoring.
 
-- FMP (requires free-tier FMP_API_KEY): general news + press releases.
-  Skipped with a warning if no key is configured — nothing paid is enabled
-  by default.
+- FMP (requires a paid plan as of FMP's Aug 2025 API changes - the free tier
+  no longer includes any news endpoint, legacy or current): general news +
+  press releases. Skipped with a warning if no key is configured or the key
+  isn't entitled to these endpoints - nothing paid is enabled by default.
+- Finnhub (free-tier FINNHUB_API_KEY, 60 calls/min): general market news +
+  per-watchlist-ticker company news. This is the primary free news leg.
 - SEC EDGAR "current events" feed (no key needed): real-time 8-K / SC 13D /
   SC 13G filings, via the public Atom feed. Tickers are resolved from CIK
   using SEC's public company_tickers.json mapping.
@@ -24,6 +27,8 @@ from src import config, db, score
 
 FMP_STOCK_NEWS_URL = "https://financialmodelingprep.com/stable/news/stock-latest"
 FMP_PRESS_RELEASES_URL = "https://financialmodelingprep.com/stable/news/press-releases-latest"
+FINNHUB_NEWS_URL = "https://finnhub.io/api/v1/news"
+FINNHUB_COMPANY_NEWS_URL = "https://finnhub.io/api/v1/company-news"
 SEC_CURRENT_EVENTS_URL = "https://www.sec.gov/cgi-bin/browse-edgar"
 SEC_COMPANY_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 
@@ -124,6 +129,87 @@ async def poll_fmp_press_releases(client):
     return out
 
 
+def _parse_finnhub_datetime(epoch_seconds) -> str:
+    return _to_iso_utc(datetime.fromtimestamp(epoch_seconds, tz=timezone.utc))
+
+
+async def poll_finnhub_general_news(client):
+    if not config.FINNHUB_API_KEY:
+        return []
+    try:
+        resp = await client.get(
+            FINNHUB_NEWS_URL,
+            params={"category": "general", "token": config.FINNHUB_API_KEY},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        items = resp.json()
+    except (httpx.HTTPError, ValueError) as exc:
+        print(f"[ingest] warning: Finnhub general news poll failed: {exc}")
+        return []
+
+    out = []
+    for item in items or []:
+        item_id = item.get("id")
+        if item_id is None:
+            continue
+        related = (item.get("related") or "").strip().upper()
+        out.append({
+            "source": "finnhub_news",
+            "source_id": str(item_id),
+            "ticker": related.split(",")[0] if related else None,
+            "headline": (item.get("headline") or "").strip(),
+            "body": item.get("summary"),
+            "url": item.get("url"),
+            "published_at": _parse_finnhub_datetime(item["datetime"]) if item.get("datetime") else _to_iso_utc(datetime.now(timezone.utc)),
+        })
+    return out
+
+
+async def poll_finnhub_company_news(client, ticker, date_from, date_to):
+    if not config.FINNHUB_API_KEY:
+        return []
+    try:
+        resp = await client.get(
+            FINNHUB_COMPANY_NEWS_URL,
+            params={"symbol": ticker, "from": date_from, "to": date_to, "token": config.FINNHUB_API_KEY},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        items = resp.json()
+    except (httpx.HTTPError, ValueError) as exc:
+        print(f"[ingest] warning: Finnhub company news poll failed for {ticker}: {exc}")
+        return []
+
+    out = []
+    for item in items or []:
+        item_id = item.get("id")
+        if item_id is None:
+            continue
+        out.append({
+            "source": "finnhub_company_news",
+            "source_id": str(item_id),
+            "ticker": ticker,
+            "headline": (item.get("headline") or "").strip(),
+            "body": item.get("summary"),
+            "url": item.get("url"),
+            "published_at": _parse_finnhub_datetime(item["datetime"]) if item.get("datetime") else _to_iso_utc(datetime.now(timezone.utc)),
+        })
+    return out
+
+
+async def poll_finnhub_watchlist(client):
+    if not config.FINNHUB_API_KEY:
+        return []
+    today = datetime.now(timezone.utc).date()
+    date_from = (today - timedelta(days=1)).isoformat()
+    date_to = today.isoformat()
+    results = await asyncio.gather(
+        *(poll_finnhub_company_news(client, ticker, date_from, date_to) for ticker in config.WATCHLIST)
+    )
+    return [item for batch in results for item in batch]
+
+
 def _extract_cik(title: str):
     match = re.search(r"\((\d{4,10})\)", title)
     if not match:
@@ -195,6 +281,8 @@ async def poll_once(conn):
         results = await asyncio.gather(
             poll_fmp_news(client),
             poll_fmp_press_releases(client),
+            poll_finnhub_general_news(client),
+            poll_finnhub_watchlist(client),
             poll_sec_filings(client),
         )
 
@@ -213,8 +301,11 @@ async def poll_once(conn):
 async def run_loop():
     db.init_db()
     if not config.FMP_API_KEY:
-        print("[ingest] FMP_API_KEY not set - skipping FMP news/press releases, "
-              "running SEC EDGAR feed only. Set FMP_API_KEY in .env to enable FMP.")
+        print("[ingest] FMP_API_KEY not set - skipping FMP news/press releases. "
+              "Set FMP_API_KEY in .env to enable FMP (requires a paid FMP plan).")
+    if not config.FINNHUB_API_KEY:
+        print("[ingest] FINNHUB_API_KEY not set - skipping Finnhub news. "
+              "Set FINNHUB_API_KEY in .env to enable it (free tier, no card needed).")
 
     while True:
         with db.connection() as conn:

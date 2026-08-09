@@ -40,11 +40,12 @@ const EXAMPLE_QUESTIONS = [
   "Show everything",
 ];
 
-function buildFeedUrl({ ticker, category, tier }) {
+function buildFeedUrl({ ticker, category, tier, limit }) {
   const params = new URLSearchParams();
   if (ticker) params.set("ticker", ticker);
   if (category) params.set("category", category);
   if (tier) params.set("tier", tier);
+  if (limit) params.set("limit", limit);
   const qs = params.toString();
   return `/api/feed${qs ? `?${qs}` : ""}`;
 }
@@ -69,6 +70,7 @@ export default function App() {
   const [tickerFilter, setTickerFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [tierFilter, setTierFilter] = useState("2");
+  const [limitFilter, setLimitFilter] = useState("200");
   const [expandedId, setExpandedId] = useState(null);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -96,7 +98,9 @@ export default function App() {
 
     async function poll() {
       try {
-        const res = await fetch(buildFeedUrl({ ticker: tickerFilter, category: categoryFilter, tier: tierFilter }));
+        const res = await fetch(
+          buildFeedUrl({ ticker: tickerFilter, category: categoryFilter, tier: tierFilter, limit: limitFilter })
+        );
         if (!res.ok) throw new Error(`API returned ${res.status}`);
         const data = await res.json();
         if (!cancelled) {
@@ -115,7 +119,7 @@ export default function App() {
       cancelled = true;
       clearInterval(id);
     };
-  }, [tickerFilter, categoryFilter, tierFilter, viewMode]);
+  }, [tickerFilter, categoryFilter, tierFilter, limitFilter, viewMode]);
 
   async function askQuestion(text) {
     if (!text.trim() || chatLoading) return;
@@ -254,6 +258,16 @@ export default function App() {
             <option value="2">Big + notable (Tier 1-2)</option>
             <option value="3">Include minor (Tier 1-3)</option>
             <option value="4">Show everything</option>
+          </select>
+        </label>
+        <label className="filter-field">
+          <span>Show</span>
+          <select value={limitFilter} onChange={(e) => setLimitFilter(e.target.value)}>
+            <option value="50">50 items</option>
+            <option value="100">100 items</option>
+            <option value="200">200 items</option>
+            <option value="500">500 items</option>
+            <option value="1000">1000 items</option>
           </select>
         </label>
       </div>

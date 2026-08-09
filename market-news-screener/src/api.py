@@ -12,12 +12,13 @@ from pathlib import Path
 from typing import Optional
 
 import uvicorn
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src import classify, config, db, ingest  # noqa: E402
+from src import chat, classify, config, db, ingest  # noqa: E402
 
 
 @asynccontextmanager
@@ -77,6 +78,40 @@ def get_feed(
             limit=limit,
         )
     return {"count": len(rows), "items": [dict(row) for row in rows]}
+
+
+class ChatRequest(BaseModel):
+    query: str
+
+
+@app.post("/chat")
+def post_chat(payload: ChatRequest):
+    """Translate a typed question into filters over the real feed data (see
+    src/chat.py) and return the matching items - a free, local, rule-based
+    parser, not an LLM call. It only ever picks which existing rows to show."""
+    if not payload.query.strip():
+        raise HTTPException(status_code=400, detail="query must not be empty")
+
+    raw_filters = chat.interpret_query_local(payload.query)
+    resolved = chat.resolve_filters(raw_filters)
+
+    with db.connection() as conn:
+        rows = db.query_feed(
+            conn,
+            ticker=resolved["ticker"],
+            category=resolved["category"],
+            max_tier=resolved["max_tier"],
+            min_timestamp=resolved["min_timestamp"],
+            limit=resolved["limit"],
+            sort_by=resolved["sort_by"],
+        )
+
+    explanation = chat.describe_filters(resolved, len(rows))
+    return {
+        "items": [dict(row) for row in rows],
+        "filters_applied": resolved,
+        "explanation": explanation,
+    }
 
 
 @app.get("/tier-table")

@@ -141,6 +141,16 @@ descending within a tier. Filters: `ticker`, `category`, `tier` (max tier to
 include, e.g. `tier=2` returns tiers 1–2), `min_timestamp` (ISO 8601 or
 epoch seconds).
 
+`POST /chat` — body `{"query": "<free text>"}`. Runs the free, local
+rule-based parser in `src/chat.py` (`interpret_query_local`) to turn the
+text into the same filter shape `/feed` uses, plus `sort_by` ("recency" or
+"biggest_move") and `limit`, applies it via `db.query_feed`, and returns
+`{items, filters_applied, explanation}`. `explanation` is built from the
+resolved filters in code (not a second model call), so it can't drift from
+what was actually queried. No LLM involved - see "Ask" in README.md for why
+and how a Claude-backed version could slot in later without changing this
+endpoint's contract.
+
 ## Frontend
 
 React table (Vite dev server) polling `/feed` every 5s. Columns: Time,

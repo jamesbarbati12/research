@@ -144,7 +144,7 @@ def upsert_ticker_cache(conn, *, ticker, market_cap, bucket):
     )
 
 
-def query_feed(conn, *, ticker=None, category=None, max_tier=None, min_timestamp=None, limit=200):
+def query_feed(conn, *, ticker=None, category=None, max_tier=None, min_timestamp=None, limit=200, sort_by="recency"):
     clauses = []
     params = []
     if ticker:
@@ -161,6 +161,11 @@ def query_feed(conn, *, ticker=None, category=None, max_tier=None, min_timestamp
         params.append(min_timestamp)
 
     where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+    order_clause = (
+        "s.est_move_pct DESC, r.published_at DESC"
+        if sort_by == "biggest_move"
+        else "s.tier ASC, r.published_at DESC"
+    )
     sql = f"""
         SELECT r.id, r.source, r.ticker, r.headline, r.body, r.url,
                r.published_at, r.ingested_at,
@@ -170,7 +175,7 @@ def query_feed(conn, *, ticker=None, category=None, max_tier=None, min_timestamp
         FROM raw_items r
         JOIN scored_items s ON s.item_id = r.id
         {where}
-        ORDER BY s.tier ASC, r.published_at DESC
+        ORDER BY {order_clause}
         LIMIT ?
     """
     params.append(limit)

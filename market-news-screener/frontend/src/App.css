@@ -47,11 +47,66 @@ h1 {
   white-space: normal;
 }
 
+.chat-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.chat-bar input {
+  flex: 1;
+  background: #171a21;
+  border: 1px solid #3a3f4d;
+  color: #e6e8ee;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.chat-bar input:focus {
+  outline: none;
+  border-color: #6b7280;
+}
+
+.chat-bar button {
+  background: #3b5bfd;
+  color: #fff;
+  border: none;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chat-bar button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.chat-bar button.secondary {
+  background: #2b2f3a;
+  color: #c7cad1;
+  font-weight: 500;
+}
+
+.chat-error {
+  color: #ff8f8f;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
 .filters {
   display: flex;
   gap: 16px;
   margin-bottom: 12px;
   flex-wrap: wrap;
+  transition: opacity 0.15s;
+}
+
+.filters.filters-disabled {
+  opacity: 0.4;
+  pointer-events: none;
 }
 
 .filter-field {

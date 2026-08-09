@@ -91,6 +91,31 @@ Set `ANTHROPIC_API_KEY` in `.env`. Without it, low-confidence regex matches
 are stored as `category="unclassified"` with `needs_llm=1` for a later batch
 pass instead of blocking the pipeline.
 
+## Ask (chat-style search)
+
+The input bar above the table ("Ask e.g. ...") lets you type things like
+*"top 5 biggest moves today"* or *"rumors about AAPL"* instead of setting
+the dropdown filters by hand. This is a **free, local, rule-based parser**
+(`src/chat.py`) — no API key, no cost, no LLM call. It recognizes patterns
+like "top N" / "N biggest", ticker symbols typed in caps (checked against
+`WATCHLIST`), category keywords ("rumors", "earnings beat", "SEC filing"
+sub-types, etc.), and time windows ("today", "this week", "last N hours").
+It only ever picks which real, already-collected rows to show — it can't
+invent headlines or numbers. Phrasing it doesn't recognize just falls back
+to showing everything, most-recent-first.
+
+Asking a question is a one-shot snapshot (not live-polled) — click "Back to
+live feed" to resume the normal auto-refreshing view with your dropdown
+filters.
+
+This intentionally isn't Claude/LLM-backed — that was considered (and would
+understand more flexible phrasing) but requires an `ANTHROPIC_API_KEY` with
+billing attached, so it was skipped in favor of the free option. The parser
+in `src/chat.py` returns a plain filter dict (`ticker`, `category`,
+`max_tier`, `sort_by`, `limit`, `since_hours`), so if an LLM-backed version
+is ever added later, it just needs to produce that same shape - no rewrite
+of `api.py` or the frontend required.
+
 ## Project layout
 
 ```
@@ -103,6 +128,7 @@ src/
   ingest.py                 FMP + Finnhub + Yahoo Finance + SEC EDGAR pollers
   classify.py               regex classifier + Claude fallback
   score.py                  tier table + market-cap scoring
-  api.py                    FastAPI app (serves /feed, runs the ingest loop)
-frontend/                  Vite + React polling table (plain-language labels, Tier 1-2 by default)
+  chat.py                   free local NL-query parser for the Ask bar
+  api.py                    FastAPI app (serves /feed, /chat, runs the ingest loop)
+frontend/                  Vite + React polling table (plain-language labels, Tier 1-2 by default, Ask bar)
 ```

@@ -54,6 +54,16 @@ export default function App() {
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
 
+  // "live" = normal polling feed with the dropdown filters above.
+  // "chat" = a one-shot snapshot returned by /api/chat for a typed question;
+  // polling pauses until the user goes back to the live feed.
+  const [viewMode, setViewMode] = useState("live");
+  const [chatQuery, setChatQuery] = useState("");
+  const [chatItems, setChatItems] = useState([]);
+  const [chatExplanation, setChatExplanation] = useState("");
+  const [chatError, setChatError] = useState(null);
+  const [chatLoading, setChatLoading] = useState(false);
+
   useEffect(() => {
     fetch("/api/tier-table")
       .then((r) => r.json())
@@ -62,6 +72,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (viewMode !== "live") return;
     let cancelled = false;
 
     async function poll() {
@@ -85,7 +96,40 @@ export default function App() {
       cancelled = true;
       clearInterval(id);
     };
-  }, [tickerFilter, categoryFilter, tierFilter]);
+  }, [tickerFilter, categoryFilter, tierFilter, viewMode]);
+
+  async function submitChat(e) {
+    e.preventDefault();
+    if (!chatQuery.trim() || chatLoading) return;
+    setChatLoading(true);
+    setChatError(null);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: chatQuery }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || `Server returned ${res.status}`);
+      setChatItems(data.items || []);
+      setChatExplanation(data.explanation || "");
+      setViewMode("chat");
+    } catch (err) {
+      setChatError(err.message);
+    } finally {
+      setChatLoading(false);
+    }
+  }
+
+  function backToLiveFeed() {
+    setViewMode("live");
+    setChatItems([]);
+    setChatExplanation("");
+    setChatError(null);
+    setChatQuery("");
+  }
+
+  const displayedItems = viewMode === "chat" ? chatItems : items;
 
   const categoryOptions = useMemo(() => {
     if (!tierTable) return [];
@@ -108,6 +152,8 @@ export default function App() {
         <div className="status-line">
           {error ? (
             <span className="error">Can't reach the server — is `python src/api.py` running? ({error})</span>
+          ) : viewMode === "chat" ? (
+            <span>{chatExplanation}</span>
           ) : (
             <span>
               {items.length} item{items.length === 1 ? "" : "s"}
@@ -117,7 +163,24 @@ export default function App() {
         </div>
       </header>
 
-      <div className="filters">
+      <form className="chat-bar" onSubmit={submitChat}>
+        <input
+          placeholder='Ask e.g. "top 5 biggest moves today" or "rumors about AAPL"'
+          value={chatQuery}
+          onChange={(e) => setChatQuery(e.target.value)}
+        />
+        <button type="submit" disabled={chatLoading}>
+          {chatLoading ? "Thinking…" : "Ask"}
+        </button>
+        {viewMode === "chat" && (
+          <button type="button" className="secondary" onClick={backToLiveFeed}>
+            Back to live feed
+          </button>
+        )}
+      </form>
+      {chatError && <div className="chat-error">{chatError}</div>}
+
+      <div className={`filters ${viewMode === "chat" ? "filters-disabled" : ""}`}>
         <label className="filter-field">
           <span>Ticker</span>
           <input
@@ -170,15 +233,16 @@ export default function App() {
           </tr>
         </thead>
         <tbody>
-          {items.length === 0 && !error && (
+          {displayedItems.length === 0 && !error && (
             <tr className="empty-row">
               <td colSpan={8}>
-                No items yet at this filter level — try "Show everything," or give the ingest loop a
-                minute to pull in its first batch.
+                {viewMode === "chat"
+                  ? "Nothing matched that question — try rephrasing, or go back to the live feed."
+                  : 'No items yet at this filter level — try "Show everything," or give the ingest loop a minute to pull in its first batch.'}
               </td>
             </tr>
           )}
-          {items.map((item) => {
+          {displayedItems.map((item) => {
             const isExpanded = expandedId === item.id;
             return (
               <Fragment key={item.id}>

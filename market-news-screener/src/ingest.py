@@ -7,9 +7,17 @@ filing feed, store raw items, then trigger live scoring.
   isn't entitled to these endpoints - nothing paid is enabled by default.
 - Finnhub (free-tier FINNHUB_API_KEY, 60 calls/min): general market news +
   per-watchlist-ticker company news. This is the primary free news leg.
+- Yahoo Finance (via the unofficial `yfinance` library, no key): per-ticker
+  news as a supplementary source. Scrapes an undocumented Yahoo endpoint, so
+  it's best-effort - failures are logged and skipped rather than blocking.
 - SEC EDGAR "current events" feed (no key needed): real-time 8-K / SC 13D /
   SC 13G filings, via the public Atom feed. Tickers are resolved from CIK
   using SEC's public company_tickers.json mapping.
+
+Per-ticker sources (Finnhub company-news, Yahoo Finance) rotate through
+config.WATCHLIST in batches of TICKER_BATCH_SIZE each poll cycle rather than
+querying the whole list every time, to stay under free-tier rate limits with
+a large watchlist.
 """
 import asyncio
 import re
@@ -198,16 +206,99 @@ async def poll_finnhub_company_news(client, ticker, date_from, date_to):
     return out
 
 
-async def poll_finnhub_watchlist(client):
-    if not config.FINNHUB_API_KEY:
+async def poll_finnhub_watchlist(client, ticker_batch):
+    if not config.FINNHUB_API_KEY or not ticker_batch:
         return []
     today = datetime.now(timezone.utc).date()
     date_from = (today - timedelta(days=1)).isoformat()
     date_to = today.isoformat()
     results = await asyncio.gather(
-        *(poll_finnhub_company_news(client, ticker, date_from, date_to) for ticker in config.WATCHLIST)
+        *(poll_finnhub_company_news(client, ticker, date_from, date_to) for ticker in ticker_batch)
     )
     return [item for batch in results for item in batch]
+
+
+def _yfinance_news_for_ticker(ticker):
+    """Blocking call (yfinance wraps `requests`) - run via asyncio.to_thread."""
+    import yfinance as yf
+
+    raw_items = yf.Ticker(ticker).news or []
+    out = []
+    for raw in raw_items:
+        # yfinance's news schema has changed across versions; newer releases
+        # nest fields under "content", older ones are flat. Handle both.
+        content = raw.get("content", raw)
+        item_id = raw.get("id") or content.get("uuid") or content.get("id")
+        if item_id is None:
+            continue
+        headline = (content.get("title") or "").strip()
+        if not headline:
+            continue
+        url = None
+        canonical = content.get("canonicalUrl") or content.get("clickThroughUrl")
+        if isinstance(canonical, dict):
+            url = canonical.get("url")
+        url = url or content.get("link")
+        pub_date = content.get("pubDate") or content.get("providerPublishTime")
+        if isinstance(pub_date, (int, float)):
+            published_at = _to_iso_utc(datetime.fromtimestamp(pub_date, tz=timezone.utc))
+        elif isinstance(pub_date, str):
+            try:
+                published_at = _to_iso_utc(datetime.fromisoformat(pub_date.replace("Z", "+00:00")))
+            except ValueError:
+                published_at = _to_iso_utc(datetime.now(timezone.utc))
+        else:
+            published_at = _to_iso_utc(datetime.now(timezone.utc))
+        out.append({
+            "source": "yfinance_news",
+            "source_id": str(item_id),
+            "ticker": ticker,
+            "headline": headline,
+            "body": content.get("summary"),
+            "url": url,
+            "published_at": published_at,
+        })
+    return out
+
+
+async def poll_yfinance_watchlist(ticker_batch):
+    """Yahoo Finance news via the unofficial yfinance library - free, no key,
+    but scrapes an undocumented Yahoo endpoint that can change or rate-limit
+    without notice. Best-effort: per-ticker failures are logged and skipped."""
+    if not ticker_batch:
+        return []
+
+    async def _one(ticker):
+        try:
+            return await asyncio.to_thread(_yfinance_news_for_ticker, ticker)
+        except Exception as exc:  # yfinance can raise a variety of error types
+            print(f"[ingest] warning: yfinance news poll failed for {ticker}: {exc}")
+            return []
+
+    results = await asyncio.gather(*(_one(t) for t in ticker_batch))
+    return [item for batch in results for item in batch]
+
+
+_ticker_rotation_index = 0
+
+
+def _next_ticker_batch():
+    """Rotate through config.WATCHLIST in fixed-size batches across poll
+    cycles, so a large watchlist doesn't exceed per-minute rate limits on
+    any single poll."""
+    global _ticker_rotation_index
+    watchlist = config.WATCHLIST
+    if not watchlist:
+        return []
+    batch_size = min(config.TICKER_BATCH_SIZE, len(watchlist))
+    start = _ticker_rotation_index % len(watchlist)
+    end = start + batch_size
+    if end <= len(watchlist):
+        batch = watchlist[start:end]
+    else:
+        batch = watchlist[start:] + watchlist[: end - len(watchlist)]
+    _ticker_rotation_index = end % len(watchlist)
+    return batch
 
 
 def _extract_cik(title: str):
@@ -277,12 +368,14 @@ async def poll_sec_filings(client):
 
 
 async def poll_once(conn):
+    ticker_batch = _next_ticker_batch()
     async with httpx.AsyncClient() as client:
         results = await asyncio.gather(
             poll_fmp_news(client),
             poll_fmp_press_releases(client),
             poll_finnhub_general_news(client),
-            poll_finnhub_watchlist(client),
+            poll_finnhub_watchlist(client, ticker_batch),
+            poll_yfinance_watchlist(ticker_batch),
             poll_sec_filings(client),
         )
 

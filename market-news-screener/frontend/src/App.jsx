@@ -2,7 +2,24 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 
 const POLL_MS = 5000;
 
-const TIER_LABELS = { 1: "Tier 1", 2: "Tier 2", 3: "Tier 3", 4: "Tier 4" };
+const TIER_LABELS = { 1: "Tier 1 — Big", 2: "Tier 2 — Notable", 3: "Tier 3 — Minor", 4: "Tier 4 — Noise" };
+
+// Raw source identifiers are internal plumbing (which poller found the item)
+// - collapse them to the provider name a person actually recognizes.
+const SOURCE_LABELS = {
+  fmp_news: "FMP",
+  fmp_press_release: "FMP",
+  finnhub_news: "Finnhub",
+  finnhub_company_news: "Finnhub",
+  yfinance_news: "Yahoo Finance",
+  sec_8k: "SEC (8-K)",
+  sec_13d: "SEC (13D)",
+  sec_13g: "SEC (13G)",
+};
+
+function sourceLabel(source) {
+  return SOURCE_LABELS[source] || source;
+}
 
 function buildFeedUrl({ ticker, category, tier }) {
   const params = new URLSearchParams();
@@ -32,7 +49,7 @@ export default function App() {
   const [tierTable, setTierTable] = useState(null);
   const [tickerFilter, setTickerFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [tierFilter, setTierFilter] = useState("");
+  const [tierFilter, setTierFilter] = useState("2");
   const [expandedId, setExpandedId] = useState(null);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -70,47 +87,73 @@ export default function App() {
     };
   }, [tickerFilter, categoryFilter, tierFilter]);
 
-  const categories = useMemo(
-    () => (tierTable ? Object.keys(tierTable.categories).sort() : []),
-    [tierTable]
-  );
+  const categoryOptions = useMemo(() => {
+    if (!tierTable) return [];
+    return Object.entries(tierTable.categories)
+      .map(([slug, info]) => ({ slug, label: info.label || slug }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [tierTable]);
+
+  function categoryLabel(slug) {
+    return tierTable?.categories?.[slug]?.label || slug;
+  }
 
   return (
     <div className="app">
       <header>
-        <h1>Market News Screener</h1>
+        <div>
+          <h1>Market News Screener</h1>
+          <p className="subtitle">What's moving stocks right now — including rumors and buildup, not just confirmed news.</p>
+        </div>
         <div className="status-line">
           {error ? (
-            <span className="error">{error}</span>
+            <span className="error">Can't reach the server — is `python src/api.py` running? ({error})</span>
           ) : (
             <span>
-              {items.length} item(s){lastUpdated ? ` · updated ${lastUpdated.toLocaleTimeString()}` : ""}
+              {items.length} item{items.length === 1 ? "" : "s"}
+              {lastUpdated ? ` · updated ${lastUpdated.toLocaleTimeString()}` : ""}
             </span>
           )}
         </div>
       </header>
 
       <div className="filters">
-        <input
-          placeholder="Ticker (e.g. AAPL)"
-          value={tickerFilter}
-          onChange={(e) => setTickerFilter(e.target.value.toUpperCase())}
-        />
-        <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-          <option value="">All categories</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <select value={tierFilter} onChange={(e) => setTierFilter(e.target.value)}>
-          <option value="">All tiers</option>
-          <option value="1">Tier 1 only</option>
-          <option value="2">Tier 1-2</option>
-          <option value="3">Tier 1-3</option>
-          <option value="4">Tier 1-4</option>
-        </select>
+        <label className="filter-field">
+          <span>Ticker</span>
+          <input
+            placeholder="e.g. AAPL"
+            value={tickerFilter}
+            onChange={(e) => setTickerFilter(e.target.value.toUpperCase())}
+          />
+        </label>
+        <label className="filter-field">
+          <span>Category</span>
+          <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+            <option value="">All categories</option>
+            {categoryOptions.map(({ slug, label }) => (
+              <option key={slug} value={slug}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="filter-field">
+          <span>Importance</span>
+          <select value={tierFilter} onChange={(e) => setTierFilter(e.target.value)}>
+            <option value="1">Only the biggest (Tier 1)</option>
+            <option value="2">Big + notable (Tier 1-2)</option>
+            <option value="3">Include minor (Tier 1-3)</option>
+            <option value="4">Show everything</option>
+          </select>
+        </label>
+      </div>
+
+      <div className="tier-legend">
+        {[1, 2, 3, 4].map((t) => (
+          <span key={t} className={`legend-chip tier-${t}`}>
+            {TIER_LABELS[t]}
+          </span>
+        ))}
       </div>
 
       <table>
@@ -127,6 +170,14 @@ export default function App() {
           </tr>
         </thead>
         <tbody>
+          {items.length === 0 && !error && (
+            <tr className="empty-row">
+              <td colSpan={8}>
+                No items yet at this filter level — try "Show everything," or give the ingest loop a
+                minute to pull in its first batch.
+              </td>
+            </tr>
+          )}
           {items.map((item) => {
             const isExpanded = expandedId === item.id;
             return (
@@ -147,12 +198,12 @@ export default function App() {
                       item.headline
                     )}
                   </td>
-                  <td>{item.category}</td>
+                  <td title={item.category}>{categoryLabel(item.category)}</td>
                   <td>
-                    <span className={`tier-badge tier-${item.tier}`}>{TIER_LABELS[item.tier]}</span>
+                    <span className={`tier-badge tier-${item.tier}`}>Tier {item.tier}</span>
                   </td>
                   <td>{item.est_move_pct}%</td>
-                  <td>{item.source}</td>
+                  <td>{sourceLabel(item.source)}</td>
                 </tr>
                 {isExpanded && (
                   <tr className="detail-row">
@@ -160,20 +211,24 @@ export default function App() {
                     <td colSpan={7}>
                       <div className="detail">
                         <div>
-                          <strong>Category base rate</strong>: {item.category} — avg move{" "}
-                          {item.base_avg_move_pct}%, hit rate {Math.round(item.hit_rate * 100)}%
+                          <strong>Why this tier:</strong> "{categoryLabel(item.category)}" headlines move a
+                          typical stock about <strong>{item.base_avg_move_pct}%</strong> on average, and have
+                          historically gone the expected direction {Math.round(item.hit_rate * 100)}% of the
+                          time.
                         </div>
                         <div>
-                          <strong>Market cap adjustment</strong>: {item.cap_bucket} bucket × {item.cap_multiplier}
+                          <strong>Size adjustment:</strong> this ticker is in the "{item.cap_bucket}"
+                          market-cap bucket, which scales the move estimate ×{item.cap_multiplier} (smaller
+                          companies tend to move more on the same news).
                         </div>
                         <div>
-                          <strong>Estimated move</strong>: {item.base_avg_move_pct}% × {item.cap_multiplier} ={" "}
+                          <strong>Estimated move:</strong> {item.base_avg_move_pct}% × {item.cap_multiplier} ={" "}
                           <strong>{item.est_move_pct}%</strong>
                         </div>
-                        <div>
-                          <strong>Classification</strong>: {item.classified_by} (confidence{" "}
-                          {Math.round(item.confidence * 100)}%
-                          {item.needs_llm ? ", flagged for LLM review" : ""})
+                        <div className="muted">
+                          Classified by {item.classified_by} (confidence {Math.round(item.confidence * 100)}%
+                          {item.needs_llm ? " — flagged for a closer look" : ""}) · raw category:{" "}
+                          <code>{item.category}</code>
                         </div>
                         {item.body && <div className="lede">{item.body}</div>}
                       </div>

@@ -52,9 +52,31 @@ Finnhub is the free replacement used instead:
 2. Put the key in `market-news-screener/.env` as `FINNHUB_API_KEY=...`.
 3. Restart `python src/api.py`.
 
-This polls Finnhub's general market news plus per-ticker company news for
-everything in `WATCHLIST`, well within the free tier's 60 calls/min limit
-even at the default 75s poll interval.
+This polls Finnhub's general market news plus per-ticker company news for a
+rotating batch of `WATCHLIST` (see "Ticker coverage" below), well within the
+free tier's 60 calls/min limit even at the default 75s poll interval.
+
+## Ticker coverage
+
+`WATCHLIST` defaults to a static snapshot of ~450 large/mid-large-cap US
+tickers (`data/sp500_tickers.json`) rather than a small hardcoded handful.
+Per-ticker sources (Finnhub company-news, Yahoo Finance) can't query the
+whole list every 75s without blowing past free-tier rate limits, so
+`ingest.py` rotates through it in batches of `TICKER_BATCH_SIZE` (default 40)
+— a full sweep of the default list takes about 15 minutes. SEC EDGAR's
+filing feed isn't watchlist-limited at all; it already covers every filer.
+
+Set `WATCHLIST=AAPL,MSFT,...` in `.env` to use your own list instead of the
+default snapshot, and `TICKER_BATCH_SIZE` to tune the rotation speed vs.
+rate-limit headroom.
+
+## Yahoo Finance (yfinance) — supplementary, no key needed
+
+Per-ticker news via the unofficial `yfinance` library, for the same rotating
+batch used for Finnhub. It scrapes an undocumented Yahoo endpoint (no
+official API, no key), so treat it as best-effort: per-ticker failures are
+logged and skipped rather than blocking the rest of the pipeline, and Yahoo
+can change the response shape or rate-limit without notice.
 
 ## Enabling FMP (requires a paid plan)
 
@@ -73,13 +95,14 @@ pass instead of blocking the pipeline.
 
 ```
 SPEC.md                    architecture/design notes
-data/tier_table.json       category tiers, avg move %, hit rate, cap buckets
+data/tier_table.json       category tiers, avg move %, hit rate, cap buckets, display labels
+data/sp500_tickers.json    default watchlist snapshot for per-ticker news polling
 src/
-  config.py                env vars / paths
+  config.py                env vars / paths / watchlist loading
   db.py                     SQLite schema + query helpers
-  ingest.py                 FMP + Finnhub + SEC EDGAR pollers
+  ingest.py                 FMP + Finnhub + Yahoo Finance + SEC EDGAR pollers
   classify.py               regex classifier + Claude fallback
   score.py                  tier table + market-cap scoring
   api.py                    FastAPI app (serves /feed, runs the ingest loop)
-frontend/                  Vite + React polling table
+frontend/                  Vite + React polling table (plain-language labels, Tier 1-2 by default)
 ```

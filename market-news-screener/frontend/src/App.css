@@ -18,8 +18,10 @@ body {
 header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 16px;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 h1 {
@@ -27,19 +29,39 @@ h1 {
   margin: 0;
 }
 
+.subtitle {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: #9aa0ac;
+  max-width: 46ch;
+}
+
 .status-line {
   font-size: 0.85rem;
   color: #9aa0ac;
+  white-space: nowrap;
 }
 
 .status-line .error {
   color: #ff6b6b;
+  white-space: normal;
 }
 
 .filters {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #9aa0ac;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .filters input,
@@ -50,6 +72,44 @@ h1 {
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 0.9rem;
+  text-transform: none;
+  letter-spacing: normal;
+  min-width: 180px;
+}
+
+.tier-legend {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.legend-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.legend-chip.tier-1 {
+  background: rgba(255, 82, 82, 0.22);
+  color: #ff8f8f;
+}
+
+.legend-chip.tier-2 {
+  background: rgba(255, 159, 67, 0.2);
+  color: #ffb877;
+}
+
+.legend-chip.tier-3 {
+  background: rgba(255, 214, 0, 0.16);
+  color: #f0d264;
+}
+
+.legend-chip.tier-4 {
+  background: rgba(154, 160, 172, 0.16);
+  color: #b7bcc6;
 }
 
 table {
@@ -163,4 +223,23 @@ tr.tier-4 {
   margin-top: 6px;
   color: #9aa0ac;
   white-space: pre-wrap;
+}
+
+.detail .muted {
+  color: #767c88;
+  font-size: 0.8rem;
+}
+
+.detail code {
+  background: #1b1e26;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.empty-row td {
+  padding: 32px 10px;
+  text-align: center;
+  color: #767c88;
+  font-size: 0.9rem;
 }

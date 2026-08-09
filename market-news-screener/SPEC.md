@@ -28,17 +28,34 @@ tier table stay in sync.
 
 | Source | What | Auth | Poll interval |
 |---|---|---|---|
-| Finnhub | `/news` (general market news) + `/company-news` (per-`WATCHLIST`-ticker) | Free-tier API key (`FINNHUB_API_KEY`), 60 calls/min, no card required | 60–90s (`POLL_INTERVAL_SECONDS`, default 75) |
+| Finnhub | `/news` (general market news) + `/company-news` (per-ticker, rotating batch) | Free-tier API key (`FINNHUB_API_KEY`), 60 calls/min, no card required | 60–90s (`POLL_INTERVAL_SECONDS`, default 75) |
+| Yahoo Finance (via `yfinance`) | Per-ticker news (same rotating batch as Finnhub) | None — no key, but unofficial/scraped, best-effort | Same loop, 60–90s |
 | Financial Modeling Prep (FMP) | `/stable/news/stock-latest` (general news) + `/stable/news/press-releases-latest` | Requires a **paid** FMP plan — FMP retired free-tier news access (legacy and current) in August 2025 | Same loop, 60–90s |
 | SEC EDGAR "current events" feed | Real-time 8-K / SC 13D / SC 13G filings, Atom/RSS | None — public, no key | Same loop, 60–90s |
 
 Finnhub is the primary free news leg (FMP's free tier stopped including any
 news endpoint partway through this project — confirmed via a live `402`/
-legacy-endpoint error against a real free-tier key). Nothing paid is enabled
-by default — `ingest.py` runs the SEC EDGAR leg unconditionally (no key
-needed), the Finnhub leg if `FINNHUB_API_KEY` is set, and skips FMP with a
-warning unless `FMP_API_KEY` is set to a key on a paid plan. Per the task
+legacy-endpoint error against a real free-tier key). Yahoo Finance
+(`yfinance`) supplements it for broader per-ticker coverage at no cost, at
+the price of being an unofficial, undocumented integration that can break
+without notice — failures there are logged and skipped, never fatal. Nothing
+paid is enabled by default — `ingest.py` runs the SEC EDGAR leg
+unconditionally (no key needed), Finnhub and Yahoo Finance for whichever
+tickers are in the current rotation batch, and skips FMP with a warning
+unless `FMP_API_KEY` is set to a key on a paid plan. Per the task
 instructions, no paid tier/API should be added without asking first.
+
+### Ticker coverage
+
+Per-ticker sources can't afford to query the entire watchlist every poll
+without exceeding free-tier rate limits, so `config.WATCHLIST` (default: a
+~450-ticker large/mid-large-cap snapshot, `data/sp500_tickers.json`) is
+consumed in rotating batches of `TICKER_BATCH_SIZE` (default 40) —
+`ingest._next_ticker_batch()` advances a fixed-size window through the list
+each poll cycle, wrapping around, so the full list gets swept roughly every
+`ceil(len(WATCHLIST) / TICKER_BATCH_SIZE)` cycles (~15 minutes at defaults).
+SEC EDGAR's filing feed is unaffected by this — it already covers every
+filer regardless of watchlist.
 
 ## Categories & tiers
 
@@ -129,8 +146,18 @@ epoch seconds).
 React table (Vite dev server) polling `/feed` every 5s. Columns: Time,
 Ticker, Headline, Category, Tier, Est. move, Source. Row background
 color-coded by tier (Tier 1 red → Tier 4 gray). Clicking a row expands it to
-show the scoring breakdown: category base rate (avg move / hit rate) ×
-market-cap multiplier = estimated move.
+show the scoring breakdown in plain language: category base rate (avg move /
+hit rate) × market-cap multiplier = estimated move, with the raw category
+slug kept as small reference text rather than the primary label.
+
+Internal identifiers are translated to plain language for display rather
+than shown raw: category slugs (`rumor_speculation`) get a human label
+("Rumor / Unconfirmed Report") from `label` fields in `tier_table.json`, and
+ingest source names (`finnhub_company_news`, `sec_8k`) collapse to a
+provider name ("Finnhub", "SEC (8-K)") via a small map in `App.jsx`. The
+importance filter defaults to "Tier 1-2" rather than "everything," since an
+unfiltered feed across ~450 tickers is mostly noise for a first look — a
+"Show everything" option is still one click away.
 
 ## Explicitly out of scope for Phase 1
 

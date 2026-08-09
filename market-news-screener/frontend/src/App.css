@@ -90,6 +90,20 @@ h1 {
   font-weight: 500;
 }
 
+.example-picker {
+  background: #171a21;
+  border: 1px solid #3a3f4d;
+  color: #9aa0ac;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  max-width: 140px;
+}
+
+.example-picker:disabled {
+  opacity: 0.6;
+}
+
 .chat-error {
   color: #ff8f8f;
   font-size: 0.85rem;

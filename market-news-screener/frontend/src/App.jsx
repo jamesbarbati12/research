@@ -21,6 +21,25 @@ function sourceLabel(source) {
   return SOURCE_LABELS[source] || source;
 }
 
+// Example prompts for the "Ask" dropdown - each one is phrasing src/chat.py's
+// local parser actually recognizes, so picking one always produces a result.
+const EXAMPLE_QUESTIONS = [
+  "Top 5 biggest moves",
+  "Top 10 biggest moves today",
+  "Any rumors right now",
+  "Rumor denials this week",
+  "Earnings beats today",
+  "Earnings misses",
+  "Analyst downgrades this week",
+  "Analyst upgrades",
+  "SEC 8-K filings",
+  "Activist stakes (13D)",
+  "Dividend announcements",
+  "Buybacks announced",
+  "Only the biggest news (Tier 1)",
+  "Show everything",
+];
+
 function buildFeedUrl({ ticker, category, tier }) {
   const params = new URLSearchParams();
   if (ticker) params.set("ticker", ticker);
@@ -98,16 +117,15 @@ export default function App() {
     };
   }, [tickerFilter, categoryFilter, tierFilter, viewMode]);
 
-  async function submitChat(e) {
-    e.preventDefault();
-    if (!chatQuery.trim() || chatLoading) return;
+  async function askQuestion(text) {
+    if (!text.trim() || chatLoading) return;
     setChatLoading(true);
     setChatError(null);
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: chatQuery }),
+        body: JSON.stringify({ query: text }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.detail || `Server returned ${res.status}`);
@@ -119,6 +137,19 @@ export default function App() {
     } finally {
       setChatLoading(false);
     }
+  }
+
+  function submitChat(e) {
+    e.preventDefault();
+    askQuestion(chatQuery);
+  }
+
+  function pickExample(e) {
+    const question = e.target.value;
+    e.target.value = ""; // reset to placeholder so it reads as a menu, not a persistent choice
+    if (!question) return;
+    setChatQuery(question);
+    askQuestion(question);
   }
 
   function backToLiveFeed() {
@@ -169,6 +200,22 @@ export default function App() {
           value={chatQuery}
           onChange={(e) => setChatQuery(e.target.value)}
         />
+        <select
+          className="example-picker"
+          defaultValue=""
+          onChange={pickExample}
+          disabled={chatLoading}
+          aria-label="Example questions"
+        >
+          <option value="" disabled>
+            Examples…
+          </option>
+          {EXAMPLE_QUESTIONS.map((q) => (
+            <option key={q} value={q}>
+              {q}
+            </option>
+          ))}
+        </select>
         <button type="submit" disabled={chatLoading}>
           {chatLoading ? "Thinking…" : "Ask"}
         </button>

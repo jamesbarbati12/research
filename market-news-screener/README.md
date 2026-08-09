@@ -104,6 +104,10 @@ It only ever picks which real, already-collected rows to show — it can't
 invent headlines or numbers. Phrasing it doesn't recognize just falls back
 to showing everything, most-recent-first.
 
+Not sure what to type? The "Examples…" dropdown next to the input lists
+sample questions covering the patterns the parser understands — picking one
+fills the input and runs it immediately.
+
 Asking a question is a one-shot snapshot (not live-polled) — click "Back to
 live feed" to resume the normal auto-refreshing view with your dropdown
 filters.

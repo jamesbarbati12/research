@@ -120,6 +120,33 @@ in `src/chat.py` returns a plain filter dict (`ticker`, `category`,
 is ever added later, it just needs to produce that same shape - no rewrite
 of `api.py` or the frontend required.
 
+## Backtesting the tier table against real prices
+
+Every value in `data/tier_table.json` starts as an admitted placeholder
+(`"placeholder": true`). `scripts/backtest.py` replaces that guesswork with
+real measurement:
+
+```bash
+python scripts/backtest.py              # dry run - just prints a report
+python scripts/backtest.py --apply      # also updates tier_table.json
+```
+
+For every ingested item with a ticker, it pulls free daily price history
+(`yfinance`, no key needed) and measures the actual price move from the
+close before the headline to the close on/after the day the market could
+react to it — then normalizes that by the ticker's market-cap bucket so a
+big move on a microcap doesn't skew a category's "mid-cap-equivalent" base
+rate. A category is only marked `"calibrated": true` (and gets its
+`avg_move_pct`/`hit_rate` updated) once it has at least `--min-samples`
+(default 5) real examples — everything else stays an honest placeholder
+rather than getting overwritten with a noisy estimate from 1-2 data points.
+
+This is naturally most useful the longer the ingest loop has been running
+(more real historical items = more calibrated categories) — re-run it
+periodically as data accumulates. Results are also written to
+`data/backtest_results.json` for a full per-category breakdown, including
+categories that don't have enough samples yet.
+
 ## Project layout
 
 ```
@@ -134,5 +161,8 @@ src/
   score.py                  tier table + market-cap scoring
   chat.py                   free local NL-query parser for the Ask bar
   api.py                    FastAPI app (serves /feed, /chat, runs the ingest loop)
+scripts/
+  seed_demo_data.py         local demo data for testing without live network access
+  backtest.py               calibrates tier_table.json against real price history
 frontend/                  Vite + React polling table (plain-language labels, Tier 1-2 by default, Ask bar)
 ```

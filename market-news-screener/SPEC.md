@@ -88,7 +88,38 @@ All four are seeded with **placeholder** `avg_move_pct` / `hit_rate` values
 with real historical price-reaction data once the pipeline has logged enough
 of them. Everything else in the table (earnings, guidance, M&A, FDA,
 analyst actions, filings, etc.) is also a reasonable-default placeholder for
-this phase, not calibrated output.
+this phase, not calibrated output. See "Backtesting" below for how
+placeholders get replaced with real numbers.
+
+## Backtesting (`scripts/backtest.py`)
+
+Placeholders are meant to be temporary. The backtest script measures what
+each category *actually* did to price, using free daily history from
+`yfinance`:
+
+1. For each ingested item with a ticker, compute "day 0" — the trading day
+   the market first had a chance to react (same day if published before
+   4pm ET, otherwise the next trading day; weekends/holidays fall out
+   naturally since yfinance only returns real trading days).
+2. Move = % change from the close before day 0 to the close on/after day 0.
+3. Normalize that move by the ticker's market-cap bucket multiplier (reusing
+   `score.bucket_for_market_cap` and the `ticker_cache` table), so results
+   are comparable to the tier table's documented "mid-cap-equivalent"
+   `avg_move_pct` regardless of whether the sample happened to be a mega-cap
+   or a microcap.
+4. Aggregate per category: sample size, mean normalized move, and a
+   `hit_rate` (fraction of *raw* moves at or above `--noise-threshold`,
+   default 1.0%, i.e. "big enough to not just be noise").
+5. A category is only trusted (`"calibrated": true`) once it has
+   `--min-samples` (default 5) real examples. Below that, the script leaves
+   the existing placeholder untouched rather than overwriting it with an
+   estimate from 1-2 data points.
+
+Dry run by default (`python scripts/backtest.py`); `--apply` is required to
+actually write into `tier_table.json`, and it only touches categories that
+cleared the sample-size bar — every other category's placeholder is left
+exactly as-is. Full results (including uncalibrated categories and their
+current sample counts) are always written to `data/backtest_results.json`.
 
 ## Market-cap bucket adjustment
 

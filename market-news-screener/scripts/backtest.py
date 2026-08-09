@@ -22,6 +22,7 @@ Usage:
 """
 import argparse
 import logging
+import math
 import sys
 import time
 from collections import defaultdict
@@ -83,15 +84,17 @@ def get_daily_history(ticker: str, start: date):
 
 
 def close_before(df, target_day: date):
+    # Yahoo occasionally has a NaN Close for a given day (data gaps, halts) -
+    # skip past those rather than let one bad row poison the whole average.
     for ts, row in reversed(list(df.iterrows())):
-        if ts.date() < target_day:
+        if ts.date() < target_day and not math.isnan(row["Close"]):
             return float(row["Close"])
     return None
 
 
 def close_on_or_after(df, target_day: date):
     for ts, row in df.iterrows():
-        if ts.date() >= target_day:
+        if ts.date() >= target_day and not math.isnan(row["Close"]):
             return float(row["Close"])
     return None
 
@@ -158,6 +161,12 @@ def run_backtest(noise_threshold_pct, min_samples):
             raw_abs_move = abs((reaction - baseline) / baseline * 100)
             _, multiplier = get_market_cap_bucket_sync(conn, ticker, tier_table)
             normalized_abs_move = raw_abs_move / multiplier if multiplier else raw_abs_move
+
+            # Defense in depth: never let one bad/NaN sample poison a
+            # category's whole average.
+            if math.isnan(raw_abs_move) or math.isnan(normalized_abs_move):
+                skipped_no_price_data += 1
+                continue
 
             by_category[category].append((raw_abs_move, normalized_abs_move))
 

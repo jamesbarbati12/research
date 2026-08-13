@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "run_at": "2026-08-09T18:25:43.141771+00:00",
+    "items_considered": 1159,
+    "items_skipped_no_price_data": 512,
+    "noise_threshold_pct": 1.0,
+    "min_samples_to_calibrate": 5,
+    "methodology": "Daily close-to-close move from the last trading day before publication to the trading day the market could first react (same day if published before 4pm ET, else next trading day). Normalized by the ticker's market-cap bucket multiplier so results are comparable to tier_table.json's mid-cap-equivalent avg_move_pct. hit_rate uses the RAW (non-normalized) move against noise_threshold_pct."
+  },
+  "categories": {
+    "sec_filing_8k_material": {
+      "n": 647,
+      "mean_abs_move_pct": 5.42,
+      "hit_rate": 0.78,
+      "calibrated": true
+    }
+  }
+}

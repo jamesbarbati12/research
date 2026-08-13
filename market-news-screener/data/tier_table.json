@@ -126,10 +126,12 @@
     "sec_filing_8k_material": {
       "label": "SEC Filing (8-K)",
       "tier": 2,
-      "avg_move_pct": 3.0,
-      "hit_rate": 0.55,
-      "placeholder": true,
-      "description": "8-K material event filing (catch-all when sub-type isn't otherwise classified)"
+      "avg_move_pct": 5.42,
+      "hit_rate": 0.78,
+      "placeholder": false,
+      "description": "8-K material event filing (catch-all when sub-type isn't otherwise classified)",
+      "calibrated_n": 647,
+      "calibrated_at": "2026-08-09T18:25:43.141771+00:00"
     },
     "sec_filing_13d_activist": {
       "label": "Activist Stake (13D)",

@@ -306,6 +306,26 @@ tr.tier-4 {
   font-size: 0.8rem;
 }
 
+.calibration-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.calibration-badge.calibrated {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+}
+
+.calibration-badge.placeholder {
+  background: rgba(154, 160, 172, 0.15);
+  color: #9aa0ac;
+  font-weight: 500;
+}
+
 .empty-row td {
   padding: 32px 10px;
   text-align: center;

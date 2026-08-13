@@ -177,6 +177,15 @@ export default function App() {
     return tierTable?.categories?.[slug]?.label || slug;
   }
 
+  function calibrationInfo(slug) {
+    const info = tierTable?.categories?.[slug];
+    if (!info) return null;
+    if (info.placeholder === false && info.calibrated_n) {
+      return { calibrated: true, n: info.calibrated_n, at: info.calibrated_at };
+    }
+    return { calibrated: false };
+  }
+
   return (
     <div className="app">
       <header>
@@ -330,7 +339,9 @@ export default function App() {
                   <td>{item.est_move_pct}%</td>
                   <td>{sourceLabel(item.source)}</td>
                 </tr>
-                {isExpanded && (
+                {isExpanded && (() => {
+                  const calibration = calibrationInfo(item.category);
+                  return (
                   <tr className="detail-row">
                     <td></td>
                     <td colSpan={7}>
@@ -339,7 +350,16 @@ export default function App() {
                           <strong>Why this tier:</strong> "{categoryLabel(item.category)}" headlines move a
                           typical stock about <strong>{item.base_avg_move_pct}%</strong> on average, and have
                           historically gone the expected direction {Math.round(item.hit_rate * 100)}% of the
-                          time.
+                          time.{" "}
+                          {calibration?.calibrated ? (
+                            <span className="calibration-badge calibrated">
+                              ✓ calibrated from {calibration.n} real historical events
+                            </span>
+                          ) : (
+                            <span className="calibration-badge placeholder">
+                              placeholder estimate — not yet calibrated from real data
+                            </span>
+                          )}
                         </div>
                         <div>
                           <strong>Size adjustment:</strong> this ticker is in the "{item.cap_bucket}"
@@ -359,7 +379,8 @@ export default function App() {
                       </div>
                     </td>
                   </tr>
-                )}
+                  );
+                })()}
               </Fragment>
             );
           })}

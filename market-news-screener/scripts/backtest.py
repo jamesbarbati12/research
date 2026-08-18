@@ -73,6 +73,7 @@ def get_daily_history(ticker: str, start: date):
             start=start.isoformat(),
             end=(date.today() + timedelta(days=1)).isoformat(),
             interval="1d",
+            timeout=10,
         )
         df = df if not df.empty else None
     except Exception as exc:  # yfinance can raise assorted error types

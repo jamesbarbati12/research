@@ -121,6 +121,28 @@ cleared the sample-size bar — every other category's placeholder is left
 exactly as-is. Full results (including uncalibrated categories and their
 current sample counts) are always written to `data/backtest_results.json`.
 
+### Tier re-ranking
+
+The original Tier 1-4 assignments in `tier_table.json` were hand-picked
+guesses (e.g. `rumor_speculation` was assumed Tier 1 because unconfirmed
+reports were expected to carry the biggest surprise). Once a category
+calibrates, `--apply` also re-derives its tier from the *measured*
+`avg_move_pct`, using the same thresholds `tier_table.json`'s own
+`_meta.tier_scale` already documents (`>5%` → Tier 1, `2-5%` → Tier 2,
+`1-2%` → Tier 3, `<1%` → Tier 4) — not a separate, newly-invented rule.
+`unclassified` is excluded on purpose: it's a catch-all for whatever the
+classifier couldn't place, not a real signal category, so its measured
+average is noise from an unrelated grab-bag of headlines and shouldn't
+drive a tier.
+
+When a tier changes, the category gains a `tier_reassigned_from` field
+recording the old value, and the console report shows the transition
+(e.g. `2->1`). This is deliberately real: a first production run surfaced
+`sec_filing_8k_material` moving from Tier 2 to Tier 1 (its real average
+move, 9.81%, was larger than `rumor_speculation`'s, 1.68%, which dropped
+from Tier 1 to Tier 3) — i.e. reality contradicted the original hand-picked
+ranking, and the tier table now reflects reality instead of the guess.
+
 ## Market-cap bucket adjustment
 
 The same headline moves a $500M microcap much more than a $500B megacap.

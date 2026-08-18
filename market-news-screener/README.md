@@ -147,6 +147,15 @@ periodically as data accumulates. Results are also written to
 `data/backtest_results.json` for a full per-category breakdown, including
 categories that don't have enough samples yet.
 
+When a category calibrates, `--apply` also re-derives its **Tier** from the
+measured `avg_move_pct` (using the thresholds `tier_table.json`'s own
+`_meta.tier_scale` already documents), since the original tiers were
+hand-picked guesses. This can genuinely move a category — a real run moved
+`sec_filing_8k_material` from Tier 2 to Tier 1 (measured 9.81% average move)
+and `rumor_speculation` from Tier 1 down to Tier 3 (measured 1.68%), because
+the data contradicted the original assumption. `unclassified` never gets
+re-tiered — it's a catch-all bucket, not a real category.
+
 ## Project layout
 
 ```

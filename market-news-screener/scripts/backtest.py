@@ -202,19 +202,48 @@ def run_backtest(noise_threshold_pct, min_samples):
     return meta, results
 
 
+def tier_from_avg_move(avg_move_pct):
+    """Maps a real measured avg_move_pct to a tier using the same thresholds
+    tier_table.json's own _meta.tier_scale already documents (>5% = Tier 1,
+    2-5% = Tier 2, 1-2% = Tier 3, <1% = Tier 4) - not a new, separate rule."""
+    if avg_move_pct >= 5.0:
+        return 1
+    if avg_move_pct >= 2.0:
+        return 2
+    if avg_move_pct >= 1.0:
+        return 3
+    return 4
+
+
+# "unclassified" is a catch-all for whatever the classifier couldn't place,
+# not a real signal category - its measured average is noise from a grab-bag
+# of unrelated headlines, so it's excluded from tier re-ranking and always
+# stays Tier 4.
+NEVER_RETIER = {"unclassified"}
+
+
 def print_report(meta, results, tier_table):
     _log(f"considered {meta['items_considered']} items, skipped {meta['items_skipped_no_price_data']} "
          f"(no price data available)")
     print()
-    header = f"{'category':<28} {'n':>4} {'old avg%':>9} {'new avg%':>9} {'old hit%':>9} {'new hit%':>9}  status"
+    header = (
+        f"{'category':<28} {'n':>4} {'old avg%':>9} {'new avg%':>9} {'old hit%':>9} {'new hit%':>9} "
+        f"{'tier':>6}  status"
+    )
     print(header)
     print("-" * len(header))
     for category, info in results.items():
         old = tier_table["categories"].get(category, {})
         status = "CALIBRATED" if info["calibrated"] else f"needs {meta['min_samples_to_calibrate']}+ (has {info['n']})"
+        old_tier = old.get("tier", "-")
+        if info["calibrated"] and category not in NEVER_RETIER:
+            new_tier = tier_from_avg_move(info["mean_abs_move_pct"])
+            tier_display = f"{old_tier}->{new_tier}" if new_tier != old_tier else str(old_tier)
+        else:
+            tier_display = str(old_tier)
         print(
             f"{category:<28} {info['n']:>4} {old.get('avg_move_pct', '-'):>9} {info['mean_abs_move_pct']:>9} "
-            f"{round(old.get('hit_rate', 0) * 100):>8}% {round(info['hit_rate'] * 100):>8}%  {status}"
+            f"{round(old.get('hit_rate', 0) * 100):>8}% {round(info['hit_rate'] * 100):>8}% {tier_display:>6}  {status}"
         )
     uncovered = set(tier_table["categories"]) - set(results)
     if uncovered:
@@ -229,24 +258,34 @@ def apply_results(results, tier_table_path, run_at):
         tier_table = json.load(f)
 
     updated = []
+    retiered = []
     for category, info in results.items():
         if not info["calibrated"]:
             continue
         entry = tier_table["categories"].get(category)
         if entry is None:
             continue
+        old_tier = entry.get("tier")
         entry["avg_move_pct"] = info["mean_abs_move_pct"]
         entry["hit_rate"] = info["hit_rate"]
         entry["placeholder"] = False
         entry["calibrated_n"] = info["n"]
         entry["calibrated_at"] = run_at
+
+        if category not in NEVER_RETIER:
+            new_tier = tier_from_avg_move(info["mean_abs_move_pct"])
+            if new_tier != old_tier:
+                entry["tier"] = new_tier
+                entry["tier_reassigned_from"] = old_tier
+                retiered.append((category, old_tier, new_tier))
+
         updated.append(category)
 
     with open(tier_table_path, "w") as f:
         json.dump(tier_table, f, indent=2)
         f.write("\n")
 
-    return updated
+    return updated, retiered
 
 
 def main():
@@ -274,11 +313,14 @@ def main():
     _log(f"full report written to {report_path}")
 
     if args.apply:
-        updated = apply_results(results, config.TIER_TABLE_PATH, meta["run_at"])
+        updated, retiered = apply_results(results, config.TIER_TABLE_PATH, meta["run_at"])
         if updated:
             _log(f"applied calibrated values to tier_table.json for: {', '.join(updated)}")
         else:
             _log("no categories had enough samples to calibrate - tier_table.json unchanged")
+        if retiered:
+            for category, old_tier, new_tier in retiered:
+                _log(f"re-tiered {category}: Tier {old_tier} -> Tier {new_tier} (based on real avg_move_pct)")
     else:
         calibrated = [c for c, r in results.items() if r["calibrated"]]
         if calibrated:

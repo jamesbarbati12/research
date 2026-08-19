@@ -156,6 +156,26 @@ and `rumor_speculation` from Tier 1 down to Tier 3 (measured 1.68%), because
 the data contradicted the original assumption. `unclassified` never gets
 re-tiered — it's a catch-all bucket, not a real category.
 
+### Important: re-score existing items after calibrating
+
+`backtest.py --apply` only changes `tier_table.json` — it does **not**
+retroactively update items already sitting in your database. Each item's
+`tier`/`est_move_pct` gets computed once, at ingestion time, and stored;
+restarting the API only affects items ingested *after* the restart. If you
+skip this step, you'll see a confusing mix — some SEC 8-K filings showing
+Tier 1, others still showing the old Tier 2, depending on when each one was
+originally scored. Fix that by re-scoring everything against whatever the
+tier table currently says:
+
+```bash
+python scripts/rescore.py
+```
+
+This is fast (no network calls — it just reapplies the already-known
+category and cap-bucket for each item against the current tier table) and
+safe to run anytime. Make it part of your routine: `backtest.py --apply`,
+then `rescore.py`, then restart the API.
+
 ## Project layout
 
 ```
@@ -173,5 +193,6 @@ src/
 scripts/
   seed_demo_data.py         local demo data for testing without live network access
   backtest.py               calibrates tier_table.json against real price history
+  rescore.py                reapplies the current tier_table.json to already-ingested items
 frontend/                  Vite + React polling table (plain-language labels, Tier 1-2 by default, Ask bar)
 ```

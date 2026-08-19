@@ -175,6 +175,16 @@ SQLite (`data/news_screener.db`), three tables:
   cap_bucket, cap_multiplier, est_move_pct, scored_at).
 - `ticker_cache` — market cap + bucket per ticker, with a refresh timestamp.
 
+`scored_items` fields derived from the tier table (`tier`, `base_avg_move_pct`,
+`hit_rate`, `est_move_pct`) are computed **once, at ingestion time**, and
+persisted — they don't automatically follow later changes to
+`tier_table.json`. `scripts/rescore.py` exists specifically to fix that: it
+walks every `scored_items` row and reapplies whatever the tier table
+currently says for that row's already-known category (no reclassification,
+no network calls), so a `backtest.py --apply` recalibration doesn't leave
+old and new tier assignments mixed together in the same feed. Run it after
+every `--apply`.
+
 ## Classification
 
 `classify.py` runs a regex/keyword first pass against `headline + lede` for

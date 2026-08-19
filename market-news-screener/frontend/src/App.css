@@ -332,3 +332,13 @@ tr.tier-4 {
   color: #767c88;
   font-size: 0.9rem;
 }
+
+footer.disclaimer {
+  margin-top: 24px;
+  padding: 14px 16px;
+  border: 1px solid #2b2f3a;
+  border-radius: 8px;
+  color: #6a707c;
+  font-size: 0.75rem;
+  line-height: 1.6;
+}

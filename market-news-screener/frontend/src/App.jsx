@@ -386,6 +386,13 @@ export default function App() {
           })}
         </tbody>
       </table>
+
+      <footer className="disclaimer">
+        Aggregates already-public news, press releases, and SEC filings — it does not access or use
+        material non-public information. Estimated moves and tier rankings are statistical averages
+        derived from historical data, not predictions. Nothing here is investment advice or a
+        recommendation to buy or sell any security.
+      </footer>
     </div>
   );
 }

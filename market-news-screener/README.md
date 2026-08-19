@@ -176,6 +176,46 @@ category and cap-bucket for each item against the current tier table) and
 safe to run anytime. Make it part of your routine: `backtest.py --apply`,
 then `rescore.py`, then restart the API.
 
+## Deployment (GitHub Pages, no server to host)
+
+Everything above assumes a long-running local process (`python src/api.py`).
+`.github/workflows/deploy.yml` runs a serverless variant instead, for a
+public demo link: on a schedule (~every 15 min) and on every push to `main`,
+it runs one ingest pass (`scripts/run_once.py`), exports a JSON snapshot
+(`scripts/export_static.py`), builds the frontend in **static mode**
+(`VITE_STATIC_MODE=true` — fetches the JSON snapshot instead of polling a
+live API, and runs the "Ask" bar's filtering client-side via
+`frontend/src/chat.js`, a JS port of `src/chat.py`), and publishes the
+result to a dedicated `gh-pages` branch alongside the rest of the static
+site (kept separate from `main` so the automated commits don't clutter your
+actual portfolio history).
+
+Because each scheduled run starts from an empty database, this is a **live
+snapshot** (what's happening right now, refreshed every ~15 min) rather
+than the deep historical archive your local instance builds up over days —
+that's expected, not a bug. It uses whatever `tier_table.json` is currently
+committed, so calibration work you do locally (`backtest.py --apply` +
+`rescore.py`, then a normal `git commit`/`push`) carries over automatically
+to the next deploy.
+
+**One-time setup** (does not repeat for future changes):
+
+1. **Add a repo secret**: on GitHub.com, go to Settings → Secrets and
+   variables → Actions → New repository secret. Name it `FINNHUB_API_KEY`,
+   paste your key. (Optional: `FMP_API_KEY` too, if you're on a paid plan —
+   omit it entirely and that leg just gets skipped, same as local.)
+2. **Trigger the workflow once** — push any commit to `main`, or run it
+   manually from the repo's Actions tab (`Deploy site + market news
+   screener` → Run workflow). This creates the `gh-pages` branch for the
+   first time.
+3. **Point Pages at the new branch**: Settings → Pages → under "Build and
+   deployment," set Source to "Deploy from a branch," branch `gh-pages`,
+   folder `/ (root)`.
+
+After that, the resume site lives at the usual URL and the screener at
+`.../screener/` under it — both redeploy automatically on the same
+schedule/push triggers, no further manual steps.
+
 ## Project layout
 
 ```

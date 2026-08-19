@@ -87,6 +87,14 @@ h1 em{ font-style:italic; color:var(--brass); font-weight:500; }
 }
 .byline a{ color:var(--text2); text-decoration:none; border-bottom:1px solid var(--border2); padding-bottom:2px; }
 .byline a:hover{ color:var(--brass); border-color:var(--brass); }
+.cta{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600;
+  color:var(--bg); background:var(--brass);
+  padding:11px 20px; border-radius:8px; text-decoration:none;
+  margin-bottom:28px; transition:background 0.2s, transform 0.2s;
+}
+.cta:hover{ background:#ddb670; transform:translateY(-1px); }
 .pill{
   font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase;
   padding:3px 9px; border-radius:99px; background:var(--sage-bg); color:var(--sage);
@@ -183,6 +191,7 @@ footer a{ color:var(--text2); }
     <div class="eyebrow">Systems &amp; Data · Real-Time Signal Research</div>
     <h1>Market News <em>Screener.</em></h1>
     <p class="lede">A real-time screener that tracks anything that could move a stock — not just confirmed news, but the rumors and pre-event buildup that often move price <em>more</em> than the eventual confirmation, because by the time something is confirmed, the surprise is already priced in. Every category's assumed severity is then backtested against real historical price data and re-ranked when the data disagrees with the assumption.</p>
+    <a class="cta" href="../screener/">View the live screener ↗</a>
     <div class="byline">
       <span class="pill">Live data pipeline</span>
       <span>FMP · Finnhub · Yahoo Finance · SEC EDGAR</span>

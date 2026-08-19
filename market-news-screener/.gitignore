@@ -7,3 +7,6 @@ data/news_screener.db-wal
 data/news_screener.db-shm
 node_modules/
 frontend/dist/
+frontend/public/feed.json
+frontend/public/tier-table.json
+frontend/public/tickers.json

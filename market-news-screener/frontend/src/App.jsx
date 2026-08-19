@@ -1,6 +1,16 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { applyFilters, describeFilters, interpretQueryLocal, resolveFilters } from "./chat.js";
+
+// True for the GitHub Pages deployment (built with VITE_STATIC_MODE=true):
+// there's no live backend, so data comes from a JSON snapshot refreshed by
+// a scheduled CI job instead of a server polled every few seconds, and the
+// "Ask" bar runs entirely client-side (see chat.js) instead of calling
+// POST /api/chat. Local dev (`npm run dev` against `python src/api.py`)
+// leaves this false and behaves exactly as before.
+const STATIC_MODE = import.meta.env.VITE_STATIC_MODE === "true";
 
 const POLL_MS = 5000;
+const STATIC_REFRESH_MS = 60000; // how often to re-fetch the static snapshot
 
 const TIER_LABELS = { 1: "Tier 1 — Big", 2: "Tier 2 — Notable", 3: "Tier 3 — Minor", 4: "Tier 4 — Noise" };
 
@@ -21,8 +31,9 @@ function sourceLabel(source) {
   return SOURCE_LABELS[source] || source;
 }
 
-// Example prompts for the "Ask" dropdown - each one is phrasing src/chat.py's
-// local parser actually recognizes, so picking one always produces a result.
+// Example prompts for the "Ask" dropdown - each one is phrasing src/chat.py
+// (or its client-side port, chat.js) actually recognizes, so picking one
+// always produces a result.
 const EXAMPLE_QUESTIONS = [
   "Top 5 biggest moves",
   "Top 10 biggest moves today",
@@ -66,6 +77,9 @@ function formatTime(iso) {
 
 export default function App() {
   const [items, setItems] = useState([]);
+  const [allItems, setAllItems] = useState([]); // static mode only: the full snapshot
+  const [tickerSet, setTickerSet] = useState(new Set()); // static mode only: for Ask ticker detection
+  const [snapshotAt, setSnapshotAt] = useState(null); // static mode only: when the CI job generated feed.json
   const [tierTable, setTierTable] = useState(null);
   const [tickerFilter, setTickerFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -76,8 +90,8 @@ export default function App() {
   const [lastUpdated, setLastUpdated] = useState(null);
 
   // "live" = normal polling feed with the dropdown filters above.
-  // "chat" = a one-shot snapshot returned by /api/chat for a typed question;
-  // polling pauses until the user goes back to the live feed.
+  // "chat" = a one-shot snapshot from a typed question; polling pauses
+  // until the user goes back to the live feed.
   const [viewMode, setViewMode] = useState("live");
   const [chatQuery, setChatQuery] = useState("");
   const [chatItems, setChatItems] = useState([]);
@@ -86,14 +100,26 @@ export default function App() {
   const [chatLoading, setChatLoading] = useState(false);
 
   useEffect(() => {
-    fetch("/api/tier-table")
+    // Relative (no leading slash) in static mode - the built app can be
+    // served from a nested path (e.g. /research/screener/), and an
+    // absolute "/tier-table.json" would resolve to the domain root instead.
+    const tierTableUrl = STATIC_MODE ? "tier-table.json" : "/api/tier-table";
+    fetch(tierTableUrl)
       .then((r) => r.json())
       .then(setTierTable)
-      .catch(() => setError("Could not load tier table from API"));
+      .catch(() => setError("Could not load the tier table"));
+
+    if (STATIC_MODE) {
+      fetch("tickers.json")
+        .then((r) => r.json())
+        .then((data) => setTickerSet(new Set(data.tickers || [])))
+        .catch(() => {});
+    }
   }, []);
 
+  // Live mode: poll the backend with server-side filtering every 5s.
   useEffect(() => {
-    if (viewMode !== "live") return;
+    if (STATIC_MODE || viewMode !== "live") return;
     let cancelled = false;
 
     async function poll() {
@@ -121,10 +147,68 @@ export default function App() {
     };
   }, [tickerFilter, categoryFilter, tierFilter, limitFilter, viewMode]);
 
+  // Static mode: fetch the whole snapshot occasionally (the underlying file
+  // only changes every ~15 min via CI); filtering happens client-side.
+  useEffect(() => {
+    if (!STATIC_MODE) return;
+    let cancelled = false;
+
+    async function loadSnapshot() {
+      try {
+        const res = await fetch(`feed.json?t=${Date.now()}`);
+        if (!res.ok) throw new Error(`Snapshot returned ${res.status}`);
+        const data = await res.json();
+        if (!cancelled) {
+          setAllItems(data.items || []);
+          setSnapshotAt(data.generated_at || null);
+          setLastUpdated(new Date());
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) setError(err.message);
+      }
+    }
+
+    loadSnapshot();
+    const id = setInterval(loadSnapshot, STATIC_REFRESH_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+
+  // Static mode: re-derive the displayed live-view items whenever the
+  // snapshot or dropdown filters change (client-side equivalent of the
+  // live mode's server-side query).
+  useEffect(() => {
+    if (!STATIC_MODE) return;
+    const resolved = {
+      ticker: tickerFilter || null,
+      category: categoryFilter || null,
+      maxTier: tierFilter ? parseInt(tierFilter, 10) : null,
+      sortBy: "recency",
+      limit: limitFilter ? parseInt(limitFilter, 10) : 200,
+      minTimestamp: null,
+    };
+    setItems(applyFilters(allItems, resolved));
+  }, [allItems, tickerFilter, categoryFilter, tierFilter, limitFilter]);
+
   async function askQuestion(text) {
     if (!text.trim() || chatLoading) return;
-    setChatLoading(true);
     setChatError(null);
+
+    if (STATIC_MODE) {
+      const validCategories = new Set(Object.keys(tierTable?.categories || {}));
+      const raw = interpretQueryLocal(text, tickerSet);
+      const resolved = resolveFilters(raw, validCategories);
+      const matched = applyFilters(allItems, resolved);
+      setChatItems(matched);
+      setChatExplanation(describeFilters(resolved, matched.length, tierTable));
+      setViewMode("chat");
+      return;
+    }
+
+    setChatLoading(true);
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -195,13 +279,21 @@ export default function App() {
         </div>
         <div className="status-line">
           {error ? (
-            <span className="error">Can't reach the server — is `python src/api.py` running? ({error})</span>
+            <span className="error">
+              {STATIC_MODE
+                ? `Couldn't load the data snapshot (${error})`
+                : `Can't reach the server — is \`python src/api.py\` running? (${error})`}
+            </span>
           ) : viewMode === "chat" ? (
             <span>{chatExplanation}</span>
           ) : (
             <span>
               {items.length} item{items.length === 1 ? "" : "s"}
-              {lastUpdated ? ` · updated ${lastUpdated.toLocaleTimeString()}` : ""}
+              {STATIC_MODE && snapshotAt
+                ? ` · snapshot generated ${new Date(snapshotAt).toLocaleString()}`
+                : lastUpdated
+                ? ` · updated ${lastUpdated.toLocaleTimeString()}`
+                : ""}
             </span>
           )}
         </div>
@@ -392,6 +484,7 @@ export default function App() {
         material non-public information. Estimated moves and tier rankings are statistical averages
         derived from historical data, not predictions. Nothing here is investment advice or a
         recommendation to buy or sell any security.
+        {STATIC_MODE && " This deployed demo refreshes on a schedule (~every 15 minutes), not continuously."}
       </footer>
     </div>
   );

@@ -29,11 +29,14 @@
     },
     "guidance_raise": {
       "label": "Guidance Raised",
-      "tier": 1,
-      "avg_move_pct": 5.0,
-      "hit_rate": 0.72,
-      "placeholder": true,
-      "description": "Company raises forward guidance/outlook"
+      "tier": 2,
+      "avg_move_pct": 3.22,
+      "hit_rate": 0.6,
+      "placeholder": false,
+      "description": "Company raises forward guidance/outlook",
+      "calibrated_n": 5,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 1
     },
     "guidance_cut": {
       "label": "Guidance Cut",
@@ -45,11 +48,14 @@
     },
     "ma_definitive_agreement": {
       "label": "M&A Deal Confirmed",
-      "tier": 1,
-      "avg_move_pct": 15.0,
-      "hit_rate": 0.9,
-      "placeholder": true,
-      "description": "Signed/confirmed M&A, acquisition, or merger agreement"
+      "tier": 3,
+      "avg_move_pct": 1.63,
+      "hit_rate": 0.27,
+      "placeholder": false,
+      "description": "Signed/confirmed M&A, acquisition, or merger agreement",
+      "calibrated_n": 26,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 1
     },
     "fda_decision": {
       "label": "FDA Decision",
@@ -78,10 +84,12 @@
     "legal_settlement": {
       "label": "Legal Settlement",
       "tier": 2,
-      "avg_move_pct": 3.0,
-      "hit_rate": 0.55,
-      "placeholder": true,
-      "description": "Litigation settlement or major legal resolution"
+      "avg_move_pct": 2.68,
+      "hit_rate": 0.33,
+      "placeholder": false,
+      "description": "Litigation settlement or major legal resolution",
+      "calibrated_n": 6,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
     },
     "executive_change": {
       "label": "Executive Change",
@@ -94,18 +102,23 @@
     "analyst_upgrade": {
       "label": "Analyst Upgrade",
       "tier": 3,
-      "avg_move_pct": 1.8,
-      "hit_rate": 0.55,
-      "placeholder": true,
-      "description": "Sell-side rating upgrade or price target raise"
+      "avg_move_pct": 1.89,
+      "hit_rate": 0.5,
+      "placeholder": false,
+      "description": "Sell-side rating upgrade or price target raise",
+      "calibrated_n": 24,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
     },
     "analyst_downgrade": {
       "label": "Analyst Downgrade",
-      "tier": 3,
-      "avg_move_pct": 2.0,
-      "hit_rate": 0.55,
-      "placeholder": true,
-      "description": "Sell-side rating downgrade or price target cut"
+      "tier": 2,
+      "avg_move_pct": 2.28,
+      "hit_rate": 0.73,
+      "placeholder": false,
+      "description": "Sell-side rating downgrade or price target cut",
+      "calibrated_n": 41,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 3
     },
     "dividend_change": {
       "label": "Dividend Change",
@@ -125,13 +138,14 @@
     },
     "sec_filing_8k_material": {
       "label": "SEC Filing (8-K)",
-      "tier": 2,
-      "avg_move_pct": 5.42,
-      "hit_rate": 0.78,
+      "tier": 1,
+      "avg_move_pct": 9.98,
+      "hit_rate": 0.73,
       "placeholder": false,
       "description": "8-K material event filing (catch-all when sub-type isn't otherwise classified)",
-      "calibrated_n": 647,
-      "calibrated_at": "2026-08-09T18:25:43.141771+00:00"
+      "calibrated_n": 1976,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 2
     },
     "sec_filing_13d_activist": {
       "label": "Activist Stake (13D)",
@@ -160,44 +174,56 @@
     "product_launch": {
       "label": "Product Launch",
       "tier": 3,
-      "avg_move_pct": 2.0,
-      "hit_rate": 0.45,
-      "placeholder": true,
-      "description": "New product/service launch announcement"
+      "avg_move_pct": 1.37,
+      "hit_rate": 0.28,
+      "placeholder": false,
+      "description": "New product/service launch announcement",
+      "calibrated_n": 18,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
     },
     "partnership_announced": {
       "label": "Partnership Announced",
-      "tier": 3,
-      "avg_move_pct": 1.8,
-      "hit_rate": 0.4,
-      "placeholder": true,
-      "description": "Commercial partnership, supply deal, or joint venture"
+      "tier": 2,
+      "avg_move_pct": 2.0,
+      "hit_rate": 0.38,
+      "placeholder": false,
+      "description": "Commercial partnership, supply deal, or joint venture",
+      "calibrated_n": 26,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 3
     },
     "stock_split": {
       "label": "Stock Split",
       "tier": 4,
-      "avg_move_pct": 1.0,
-      "hit_rate": 0.4,
-      "placeholder": true,
-      "description": "Stock split or reverse split announcement"
+      "avg_move_pct": 0.09,
+      "hit_rate": 0.0,
+      "placeholder": false,
+      "description": "Stock split or reverse split announcement",
+      "calibrated_n": 6,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
     },
     "rumor_speculation": {
       "label": "Rumor / Unconfirmed Report",
-      "tier": 1,
-      "avg_move_pct": 7.0,
-      "hit_rate": 0.5,
-      "placeholder": true,
+      "tier": 3,
+      "avg_move_pct": 1.68,
+      "hit_rate": 0.36,
+      "placeholder": false,
       "description": "Unconfirmed reports: \"sources say\", \"in talks to\", \"considering\", \"exploring options\". Often the biggest surprise-driven move in the whole story, since the later confirmation is already priced in.",
-      "new_in_phase_1": true
+      "new_in_phase_1": true,
+      "calibrated_n": 81,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 1
     },
     "media_anticipation": {
       "label": "Pre-Event Buildup",
       "tier": 2,
-      "avg_move_pct": 3.0,
-      "hit_rate": 0.4,
-      "placeholder": true,
+      "avg_move_pct": 2.43,
+      "hit_rate": 0.59,
+      "placeholder": false,
       "description": "Buildup coverage ahead of a scheduled event: pre-earnings previews, Fed-meeting previews, analyst previews ahead of a product launch.",
-      "new_in_phase_1": true
+      "new_in_phase_1": true,
+      "calibrated_n": 63,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
     },
     "social_sentiment_spike": {
       "label": "Social Media Spike",
@@ -210,20 +236,25 @@
     },
     "rumor_denial": {
       "label": "Rumor Denied",
-      "tier": 2,
-      "avg_move_pct": 4.0,
-      "hit_rate": 0.55,
-      "placeholder": true,
+      "tier": 4,
+      "avg_move_pct": 0.81,
+      "hit_rate": 0.0,
+      "placeholder": false,
       "description": "Company or official denial of a prior rumor. Tracked separately since denials move price too, often reversing a large fraction of the rumor's move.",
-      "new_in_phase_1": true
+      "new_in_phase_1": true,
+      "calibrated_n": 5,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 2
     },
     "unclassified": {
       "label": "Unclassified",
       "tier": 4,
-      "avg_move_pct": 0.5,
-      "hit_rate": 0.2,
-      "placeholder": true,
-      "description": "Fallback bucket: low-confidence regex match pending LLM classification, or LLM classification unavailable"
+      "avg_move_pct": 2.05,
+      "hit_rate": 0.4,
+      "placeholder": false,
+      "description": "Fallback bucket: low-confidence regex match pending LLM classification, or LLM classification unavailable",
+      "calibrated_n": 4031,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
     }
   },
   "market_cap_buckets": {

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market News Screener — Methodology &amp; Results</title>
+<meta name="description" content="A real-time market news screener that tracks rumors, buildup, and confirmed events — and backtests its own severity rankings against real historical price data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e141b;
+  --surface:#161e27;
+  --surface2:#1c2530;
+  --border:#2a3542;
+  --border2:#38455280;
+  --text:#eef1f3;
+  --text2:#93a1ac;
+  --text3:#5a6672;
+  --brass:#c9a05a;
+  --brass-dim:#8a6f42;
+  --sage:#7fae83;
+  --rose:#c2685f;
+  --blue:#6f93b3;
+  --brass-bg:rgba(201,160,90,0.09);
+  --sage-bg:rgba(127,174,131,0.09);
+  --rose-bg:rgba(194,104,95,0.09);
+  --blue-bg:rgba(111,147,179,0.09);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  font-size:15px;
+  line-height:1.6;
+}
+body::before{
+  content:'';
+  position:fixed; inset:0;
+  background-image:radial-gradient(circle at 15% 0%, rgba(201,160,90,0.05) 0%, transparent 45%),
+                    radial-gradient(circle at 85% 10%, rgba(111,147,179,0.05) 0%, transparent 45%);
+  pointer-events:none; z-index:0;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:0 28px; position:relative; z-index:1;}
+a{ color:var(--blue); }
+
+/* masthead */
+.masthead{ padding:56px 0 0; }
+.back{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text3);
+  text-decoration:none; margin-bottom:28px;
+}
+.back:hover{ color:var(--text2); }
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--brass); margin-bottom:20px;
+  display:flex; align-items:center; gap:10px;
+}
+.eyebrow::before{ content:''; width:22px; height:1px; background:var(--brass); }
+h1{
+  font-family:'Fraunces',serif;
+  font-optical-sizing:auto;
+  font-size:clamp(34px,5.5vw,58px);
+  font-weight:600;
+  letter-spacing:-1px;
+  line-height:1.05;
+  color:var(--text);
+  margin-bottom:20px;
+}
+h1 em{ font-style:italic; color:var(--brass); font-weight:500; }
+.lede{
+  max-width:680px;
+  font-size:16px;
+  color:var(--text2);
+  line-height:1.75;
+  margin-bottom:28px;
+}
+.byline{
+  display:flex; gap:24px; flex-wrap:wrap; align-items:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px; color:var(--text3);
+  padding-bottom:36px;
+  border-bottom:1px solid var(--border);
+}
+.byline a{ color:var(--text2); text-decoration:none; border-bottom:1px solid var(--border2); padding-bottom:2px; }
+.byline a:hover{ color:var(--brass); border-color:var(--brass); }
+.cta{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600;
+  color:var(--bg); background:var(--brass);
+  padding:11px 20px; border-radius:8px; text-decoration:none;
+  margin-bottom:28px; transition:background 0.2s, transform 0.2s;
+}
+.cta:hover{ background:#ddb670; transform:translateY(-1px); }
+.pill{
+  font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase;
+  padding:3px 9px; border-radius:99px; background:var(--sage-bg); color:var(--sage);
+}
+
+/* section heads */
+.section-hd{ display:flex; align-items:baseline; gap:16px; margin:64px 0 24px; }
+.section-hd h2{ font-family:'Fraunces',serif; font-size:24px; font-weight:600; color:var(--text); }
+.section-hd .n{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text3); flex:1; text-align:right; letter-spacing:1px; }
+
+p{ color:var(--text2); font-size:14.5px; line-height:1.85; margin-bottom:16px; max-width:760px; }
+p strong{ color:var(--text); font-weight:600; }
+p:last-child{ margin-bottom:0; }
+
+/* stat cards */
+.stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:8px; }
+@media(max-width:800px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+.stat-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px;
+}
+.stat-value{ font-family:'Fraunces',serif; font-size:30px; font-weight:600; color:var(--brass); margin-bottom:4px; }
+.stat-label{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text3); letter-spacing:0.5px; }
+
+/* architecture list */
+.pipeline{ display:flex; flex-direction:column; gap:0; margin-bottom:8px; }
+.pipe-step{
+  display:grid; grid-template-columns:32px 1fr; gap:16px;
+  padding:18px 0; border-bottom:1px solid var(--border);
+}
+.pipe-step:last-child{ border-bottom:none; }
+.pipe-num{
+  font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--brass);
+  width:32px; height:32px; border:1px solid var(--brass-dim); border-radius:50%;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.pipe-title{ font-family:'Fraunces',serif; font-size:17px; font-weight:600; color:var(--text); margin-bottom:6px; }
+.pipe-body{ color:var(--text2); font-size:13.5px; line-height:1.75; }
+.pipe-body code{ font-family:'IBM Plex Mono',monospace; font-size:12px; background:var(--surface2); padding:1px 6px; border-radius:4px; color:var(--sage); }
+
+/* results table */
+.tbl-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius:12px; background:var(--surface); }
+table{ width:100%; border-collapse:collapse; font-size:13px; min-width:640px; }
+th{
+  text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase;
+  color:var(--text3); padding:14px 16px; border-bottom:1px solid var(--border);
+}
+td{ padding:12px 16px; border-bottom:1px solid var(--border); color:var(--text2); }
+tr:last-child td{ border-bottom:none; }
+td.num{ font-family:'IBM Plex Mono',monospace; text-align:right; }
+td.cat{ color:var(--text); font-weight:500; }
+.tier-chip{
+  display:inline-flex; align-items:center; gap:5px;
+  font-family:'IBM Plex Mono',monospace; font-size:11px; padding:2px 8px; border-radius:99px;
+}
+.tier-chip.up{ background:var(--sage-bg); color:var(--sage); }
+.tier-chip.down{ background:var(--rose-bg); color:var(--rose); }
+.tier-chip.same{ background:var(--surface2); color:var(--text3); }
+
+/* callout */
+.callout{
+  border:1px solid var(--border2); border-left:3px solid var(--brass);
+  background:var(--brass-bg); border-radius:0 10px 10px 0; padding:20px 24px; margin:24px 0;
+}
+.callout p{ margin-bottom:0; max-width:none; }
+.callout p strong{ color:var(--brass); }
+
+/* stack badges */
+.stack{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:8px; }
+.badge{
+  font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text2);
+  background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px;
+}
+
+/* footer */
+footer{
+  border-top:1px solid var(--border);
+  margin-top:56px; padding:28px 0 48px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px; color:var(--text3); line-height:1.9;
+}
+footer a{ color:var(--text2); }
+.disclaimer{
+  font-family:'Inter',sans-serif; font-size:12.5px; color:var(--text3); line-height:1.8;
+  border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin-top:8px; max-width:none;
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <a class="back" href="../index.html">← Research Desk</a>
+    <div class="eyebrow">Systems &amp; Data · Real-Time Signal Research</div>
+    <h1>Market News <em>Screener.</em></h1>
+    <p class="lede">A real-time screener that tracks anything that could move a stock — not just confirmed news, but the rumors and pre-event buildup that often move price <em>more</em> than the eventual confirmation, because by the time something is confirmed, the surprise is already priced in. Every category's assumed severity is then backtested against real historical price data and re-ranked when the data disagrees with the assumption.</p>
+    <a class="cta" href="../screener/">View the live screener ↗</a>
+    <div class="byline">
+      <span class="pill">Live data pipeline</span>
+      <span>FMP · Finnhub · Yahoo Finance · SEC EDGAR</span>
+      <a href="https://www.linkedin.com/in/james-barbati12">LinkedIn ↗</a>
+      <a href="mailto:jamesbarbati2003@gmail.com">Email ↗</a>
+    </div>
+  </div>
+
+  <div class="section-hd"><h2>The thesis</h2><span class="n">WHY RUMORS MATTER</span></div>
+  <p>Most news screeners only track confirmed events — earnings releases, completed M&amp;A deals, formal SEC filings. But by the time a deal is <em>confirmed</em>, the market has usually already reacted to the rumor that preceded it. The confirmation isn't the surprise; the rumor was. This screener treats unconfirmed reports, pre-event media buildup, social sentiment spikes, and rumor denials as first-class signal categories — not noise to filter out.</p>
+  <p>The interesting part isn't the hypothesis. It's what happened when the hypothesis got tested against real price data.</p>
+
+  <div class="section-hd"><h2>Pipeline</h2><span class="n">ARCHITECTURE</span></div>
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num">1</div>
+      <div>
+        <div class="pipe-title">Ingest</div>
+        <div class="pipe-body">Polls four independent sources every 60-90s: <code>SEC EDGAR</code>'s real-time 8-K/13D/13G filing feed (no key required, covers every public filer), <code>Finnhub</code> general + per-ticker news, <code>Yahoo Finance</code> as a free supplementary source, and <code>FMP</code> when a paid key is available. A rotating batch cycles through a ~450-ticker watchlist so per-ticker sources stay under free-tier rate limits.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">2</div>
+      <div>
+        <div class="pipe-title">Classify</div>
+        <div class="pipe-body">A regex/keyword first pass sorts each headline into one of 26 categories — including <code>rumor_speculation</code>, <code>media_anticipation</code>, <code>social_sentiment_spike</code>, and <code>rumor_denial</code> alongside standard categories like earnings, guidance, and M&amp;A. Low-confidence matches can fall back to an LLM classifier for anything the rules don't confidently catch.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">3</div>
+      <div>
+        <div class="pipe-title">Score</div>
+        <div class="pipe-body">Each category carries a base severity (Tier 1-4) and an expected average price move, scaled by the ticker's market-cap bucket — a microcap moves more than a mega-cap on the same headline, so the same category produces a different estimated move depending on company size.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num">4</div>
+      <div>
+        <div class="pipe-title">Backtest &amp; recalibrate</div>
+        <div class="pipe-body">Every category's tier and expected move started as an honest, labeled placeholder. A backtest script pulls real daily price history for every ingested ticker, measures the actual close-to-close reaction around each headline, and — once a category has enough real examples — replaces the placeholder with a measured value. If the real data disagrees with the original severity assumption, the tier gets reassigned.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-hd"><h2>What the data actually showed</h2><span class="n">REAL BACKTEST RESULTS</span></div>
+  <p>After a production run against thousands of real, live-ingested headlines, thirteen categories had enough real samples to calibrate. Several categories moved tiers — meaning the original hand-picked severity ranking was measurably wrong in places, and the system corrected itself:</p>
+
+  <div class="callout">
+    <p><strong>The single biggest finding:</strong> <code>sec_filing_8k_material</code> — a routine SEC filing category originally ranked Tier 2 — measured a <strong>9.98% average price move</strong> across 1,976 real filings, making it the single largest mover in the entire table. Meanwhile <code>rumor_speculation</code>, originally assumed to be the biggest mover and ranked Tier 1, measured only <strong>1.68%</strong> across 81 real examples. The data didn't just fail to confirm the original hypothesis — it flipped it.</p>
+  </div>
+
+  <p>One category's drop is worth reading closely: <code>ma_definitive_agreement</code> — a <em>confirmed</em>, signed M&amp;A deal — dropped from an assumed 15% move (Tier 1) to a measured 1.63% (Tier 3) across 26 real examples. Read generously, that's consistent with the project's core thesis rather than a contradiction of it: if the deal rumor already moved the stock, the formal confirmation has little left to react to.</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Category</th><th style="text-align:right">Real samples</th><th style="text-align:right">Measured avg. move</th><th style="text-align:right">Hit rate</th><th>Tier change</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="cat">SEC Filing (8-K)</td><td class="num">1,976</td><td class="num">9.98%</td><td class="num">73%</td><td><span class="tier-chip up">Tier 2 → 1</span></td></tr>
+        <tr><td class="cat">Rumor / Unconfirmed Report</td><td class="num">81</td><td class="num">1.68%</td><td class="num">36%</td><td><span class="tier-chip down">Tier 1 → 3</span></td></tr>
+        <tr><td class="cat">M&amp;A Deal Confirmed</td><td class="num">26</td><td class="num">1.63%</td><td class="num">27%</td><td><span class="tier-chip down">Tier 1 → 3</span></td></tr>
+        <tr><td class="cat">Media Anticipation</td><td class="num">63</td><td class="num">2.43%</td><td class="num">59%</td><td><span class="tier-chip same">Tier 2</span></td></tr>
+        <tr><td class="cat">Analyst Downgrade</td><td class="num">41</td><td class="num">2.28%</td><td class="num">73%</td><td><span class="tier-chip up">Tier 3 → 2</span></td></tr>
+        <tr><td class="cat">Partnership Announced</td><td class="num">26</td><td class="num">2.00%</td><td class="num">38%</td><td><span class="tier-chip up">Tier 3 → 2</span></td></tr>
+        <tr><td class="cat">Analyst Upgrade</td><td class="num">24</td><td class="num">1.89%</td><td class="num">50%</td><td><span class="tier-chip same">Tier 3</span></td></tr>
+        <tr><td class="cat">Guidance Raised</td><td class="num">5</td><td class="num">3.22%</td><td class="num">60%</td><td><span class="tier-chip down">Tier 1 → 2</span></td></tr>
+        <tr><td class="cat">Rumor Denied</td><td class="num">5</td><td class="num">0.81%</td><td class="num">0%</td><td><span class="tier-chip down">Tier 2 → 4</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="margin-top:20px; font-size:13px; color:var(--text3);">Tiers are re-derived automatically from measured average move using fixed thresholds (&gt;5% = Tier 1, 2-5% = Tier 2, 1-2% = Tier 3, &lt;1% = Tier 4) — not hand-adjusted after the fact. A catch-all "unclassified" bucket is deliberately excluded from re-tiering, since it's a grab-bag of whatever the classifier couldn't confidently place, not a real signal category.</p>
+
+  <div class="stat-grid" style="margin-top:32px;">
+    <div class="stat-card"><div class="stat-value">~450</div><div class="stat-label">TICKERS TRACKED</div></div>
+    <div class="stat-card"><div class="stat-value">26</div><div class="stat-label">SIGNAL CATEGORIES</div></div>
+    <div class="stat-card"><div class="stat-value">13</div><div class="stat-label">CATEGORIES CALIBRATED SO FAR</div></div>
+    <div class="stat-card"><div class="stat-value">7</div><div class="stat-label">TIERS CORRECTED BY REAL DATA</div></div>
+  </div>
+
+  <div class="section-hd"><h2>Stack</h2><span class="n">HOW IT'S BUILT</span></div>
+  <div class="stack">
+    <span class="badge">Python · FastAPI</span>
+    <span class="badge">SQLite</span>
+    <span class="badge">React · Vite</span>
+    <span class="badge">yfinance (price backtesting)</span>
+    <span class="badge">Regex + LLM classification</span>
+    <span class="badge">SEC EDGAR real-time feed</span>
+  </div>
+
+  <footer>
+    <div class="disclaimer">
+      This project aggregates already-public news, press releases, and SEC filings — it does not access or use material non-public information. Estimated price moves and tier rankings are statistical averages derived from historical data, not predictions, and nothing on this page or in the live tool constitutes investment advice or a recommendation to buy or sell any security.
+    </div>
+    <div style="margin-top:18px;">Research Desk — Independent equity research portfolio. For informational and demonstrative purposes only.</div>
+  </footer>
+
+</div>
+
+</body>
+</html>

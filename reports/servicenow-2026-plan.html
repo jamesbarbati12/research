@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ServiceNow (NOW) — 2026 Year Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=JetBrains+Mono:wght@300;400;500&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f2ec;
+  --bg2: #ede9e0;
+  --surface: #ffffff;
+  --surface2: #faf8f4;
+  --border: #ddd8cc;
+  --border2: #c8c2b4;
+  --ink: #1a1714;
+  --ink2: #5c5650;
+  --ink3: #9c968c;
+  --teal: #007a6e;
+  --teal2: #009b8c;
+  --teal-bg: rgba(0,122,110,0.08);
+  --red: #c0392b;
+  --red-bg: rgba(192,57,43,0.08);
+  --amber: #b5620a;
+  --amber-bg: rgba(181,98,10,0.08);
+  --blue: #1a5fa8;
+  --blue-bg: rgba(26,95,168,0.08);
+  --gold: #8b6914;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Subtle paper texture */
+body::before {
+  content:'';
+  position: fixed; top:0; left:0; right:0; bottom:0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:0;
+}
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 28px; position:relative; z-index:1; }
+
+/* ── MASTHEAD ── */
+.masthead {
+  border-bottom: 3px solid var(--ink);
+  padding: 48px 0 32px;
+  margin-bottom: 48px;
+}
+.mast-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 16px;
+}
+.mast-title {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: clamp(40px,7vw,80px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -3px;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+.mast-title em { color: var(--teal); font-style: normal; }
+.mast-meta {
+  display: flex; gap: 32px; flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink3);
+  border-top: 1px solid var(--border2);
+  padding-top: 16px;
+}
+.mast-meta strong { color: var(--ink); }
+
+/* ── VERDICT BANNER ── */
+.verdict {
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 16px;
+  padding: 32px 36px;
+  margin-bottom: 48px;
+  display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap;
+}
+.verdict-score {
+  flex-shrink:0;
+  text-align: center;
+}
+.verdict-score .num {
+  font-family: 'Cabinet Grotesk', sans-serif;
+  font-size: 72px;
+  font-weight: 900;
+  line-height: 1;
+  color: #a8e6df;
+  display: block;
+}
+.verdict-score .lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+.verdict-body { flex:1; min-width:260px; }
+.verdict-body h2 {
+  font-size: 20px; font-weight: 800; margin-bottom: 10px;
+  color: #ffffff;
+}
+.verdict-body p { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.7; }
+.verdict-pills { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+.vpill {
+  padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  font-family: 'JetBrains Mono', monospace; letter-spacing:0.5px;
+}
+.vpill.up { background: var(--teal2); color: #fff; }
+.vpill.risk { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.2); }
+.vpill.warn { background: #c0392b; color: #fff; }
+
+/* ── SECTION HEADER ── */
+.section-hd {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 24px; margin-top: 48px;
+}
+.section-hd h3 {
+  font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--ink2);
+}
+.section-hd::after { content:''; flex:1; height:1px; background: var(--border2); }
+
+/* ── BIG NUMBER ROW ── */
+.big-nums {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-bottom: 48px;
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  overflow: hidden;
+}
+@media(max-width:700px){ .big-nums { grid-template-columns: repeat(2,1fr); } }
+
+.bn-cell {
+  background: var(--surface);
+  padding: 24px 20px;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+.bn-cell:last-child { border-right: none; }
+.bn-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ink3); margin-bottom: 8px;
+}
+.bn-value {
+  font-size: 32px; font-weight: 900; line-height: 1;
+  color: var(--ink); margin-bottom: 4px;
+}
+.bn-sub { font-size: 12px; color: var(--ink3); }
+.bn-badge {
+  position: absolute; top: 12px; right: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 4px;
+}
+.bn-badge.g { background: var(--teal-bg); color: var(--teal); }
+.bn-badge.r { background: var(--red-bg); color: var(--red); }
+.bn-badge.a { background: var(--amber-bg); color: var(--amber); }
+
+/* ── Q-BY-Q TIMELINE ── */
+.quarters { margin-bottom: 48px; }
+.q-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media(max-width:700px){ .q-grid { grid-template-columns:repeat(2,1fr); } }
+@media(max-width:450px){ .q-grid { grid-template-columns:1fr; } }
+
+.q-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 18px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.q-card:hover { border-color: var(--ink); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+.q-card.active { border-color: var(--teal); background: var(--teal-bg); }
+.q-card.done { opacity: 0.7; }
+.q-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ink3); margin-bottom: 10px;
+}
+.q-tag.live { color: var(--teal); font-weight: 700; }
+.q-name { font-size: 22px; font-weight: 900; color: var(--ink); margin-bottom: 8px; }
+.q-rev { font-size: 14px; font-weight: 700; color: var(--teal); }
+.q-growth { font-size: 12px; color: var(--ink3); font-family: 'JetBrains Mono', monospace; }
+.q-status {
+  position: absolute; top:14px; right:14px;
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.q-status.done { background: var(--ink3); }
+.q-status.live { background: var(--teal2); box-shadow: 0 0 6px var(--teal2); animation: blink 1.8s infinite; }
+.q-status.future { background: var(--border2); }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+.q-detail {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-top: 16px;
+  display: none;
+}
+.q-detail.open { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+.q-detail h4 { font-size: 15px; font-weight: 800; margin-bottom: 12px; }
+.q-detail ul { list-style: none; }
+.q-detail ul li {
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px; color: var(--ink2);
+  display: flex; gap: 10px;
+}
+.q-detail ul li::before { content: '↳'; color: var(--ink3); flex-shrink:0; }
+.q-detail ul li:last-child { border-bottom: none; }
+
+/* ── PILLARS ── */
+.pillars {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 48px;
+}
+@media(max-width:700px){ .pillars { grid-template-columns:1fr; } }
+
+.pillar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  border-top: 4px solid var(--border);
+  transition: all 0.25s;
+}
+.pillar:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.07); }
+.pillar.teal { border-top-color: var(--teal2); }
+.pillar.red  { border-top-color: var(--red); }
+.pillar.gold { border-top-color: var(--gold); }
+.pillar.blue { border-top-color: var(--blue); }
+
+.pillar-icon { font-size: 28px; margin-bottom: 12px; }
+.pillar-title { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+.pillar-body { font-size: 13px; color: var(--ink2); line-height: 1.65; }
+.pillar-items { margin-top: 14px; }
+.pillar-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+}
+.pillar-item:last-child { border-bottom: none; }
+.pi-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink:0; margin-top: 5px; }
+.pi-dot.t { background: var(--teal2); }
+.pi-dot.r { background: var(--red); }
+.pi-dot.g { background: var(--gold); }
+.pi-dot.b { background: var(--blue); }
+.pi-label { color: var(--ink); font-weight: 600; }
+.pi-sub { color: var(--ink3); }
+
+/* ── RISKS TABLE ── */
+.risks-table {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+.risks-table table { width:100%; border-collapse: collapse; }
+.risks-table th {
+  background: var(--surface2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ink3); padding: 12px 20px;
+  border-bottom: 1px solid var(--border2); text-align: left;
+}
+.risks-table td { padding: 14px 20px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+.risks-table tr:last-child td { border-bottom: none; }
+.risk-label { font-weight: 700; color: var(--ink); }
+.risk-desc { color: var(--ink2); }
+.risk-pill {
+  padding: 3px 10px; border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+  white-space: nowrap;
+}
+.risk-pill.high { background: var(--red-bg); color: var(--red); }
+.risk-pill.med  { background: var(--amber-bg); color: var(--amber); }
+.risk-pill.low  { background: var(--teal-bg); color: var(--teal); }
+
+/* ── ACQUISITION SPOTLIGHT ── */
+.acq-grid {
+  display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; margin-bottom: 48px;
+}
+@media(max-width:600px){ .acq-grid { grid-template-columns:1fr; } }
+
+.acq-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+}
+.acq-tag {
+  display: inline-block; margin-bottom: 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; padding: 3px 9px; border-radius: 4px;
+}
+.acq-tag.closed { background: var(--teal-bg); color: var(--teal); }
+.acq-tag.strategic { background: var(--blue-bg); color: var(--blue); }
+.acq-name { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+.acq-body { font-size: 13px; color: var(--ink2); line-height: 1.65; }
+.acq-why { margin-top: 12px; font-size: 12px; font-weight: 700; color: var(--ink); }
+.acq-why span { font-weight: 400; color: var(--ink2); }
+
+/* ── PROGRESS BARS ── */
+.prog-section { margin-bottom: 48px; }
+.prog-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.prog-label { font-size: 13px; color: var(--ink); min-width: 220px; flex-shrink:0; }
+.prog-track { flex:1; height: 8px; background: var(--bg2); border-radius: 99px; overflow:hidden; border: 1px solid var(--border); }
+.prog-fill { height:100%; border-radius:99px; transition: width 1.4s cubic-bezier(0.16,1,0.3,1); }
+.prog-fill.teal { background: var(--teal2); }
+.prog-fill.amber { background: var(--amber); }
+.prog-fill.red { background: var(--red); }
+.prog-fill.blue { background: var(--blue); }
+.prog-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; width: 60px; text-align:right; flex-shrink:0; font-weight: 600; }
+
+/* ── AI FLYWHEEL ── */
+.flywheel {
+  background: var(--ink);
+  color: #fff;
+  border-radius: 16px;
+  padding: 36px;
+  margin-bottom: 48px;
+}
+.flywheel h3 {
+  font-size: 22px; font-weight: 900; margin-bottom: 6px; color: #fff;
+}
+.flywheel p { font-size: 13px; color: rgba(255,255,255,0.65); margin-bottom: 24px; }
+.fw-grid {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 12px;
+}
+@media(max-width:700px){ .fw-grid { grid-template-columns:repeat(2,1fr); } }
+
+.fw-cell {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.25s;
+}
+.fw-cell:hover { background: rgba(255,255,255,0.1); border-color: rgba(168,230,223,0.4); }
+.fw-arrow { font-size: 20px; margin-bottom: 6px; }
+.fw-title { font-size: 12px; font-weight: 700; color: #a8e6df; margin-bottom: 4px; }
+.fw-body { font-size: 11px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+
+/* ── SHARE BUYBACK ── */
+.buyback {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 2px;
+  background: var(--border); border-radius: 14px; overflow:hidden;
+  margin-bottom: 48px;
+}
+@media(max-width:600px){ .buyback { grid-template-columns:1fr; } }
+.bb-cell { background: var(--surface); padding: 22px; }
+.bb-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink3); margin-bottom: 8px; }
+.bb-val { font-size: 26px; font-weight: 900; color: var(--ink); margin-bottom: 4px; }
+.bb-note { font-size: 12px; color: var(--ink3); }
+
+/* ── SUMMARY CARD ── */
+.summary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px;
+  margin-bottom: 48px;
+}
+.summary-hed { font-family: 'Newsreader', serif; font-size: 26px; font-weight: 600; color: var(--ink); margin-bottom: 20px; line-height: 1.3; }
+.summary p { font-family: 'Newsreader', serif; font-size: 15px; color: var(--ink2); line-height: 1.85; margin-bottom: 14px; }
+.summary strong { color: var(--ink); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border2);
+  padding: 28px 0;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--ink3); line-height: 1.8;
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- MASTHEAD -->
+  <div class="masthead">
+    <div class="mast-eyebrow">ServiceNow · NYSE: NOW · FY2026 Plan</div>
+    <h1 class="mast-title">The <em>2026</em><br>Year Plan</h1>
+    <div class="mast-meta">
+      <span><strong>Q1 Actual:</strong> $3.77B Revenue · +22% YoY</span>
+      <span><strong>Full-Year Sub Rev Guide:</strong> Raised post Q1 beat</span>
+      <span><strong>Theme:</strong> Agentic AI + Security Platform + CRM</span>
+      <span><strong>Updated:</strong> May 24, 2026</span>
+    </div>
+  </div>
+
+  <!-- VERDICT BANNER -->
+  <div class="verdict">
+    <div class="verdict-score">
+      <span class="num">82</span>
+      <span class="lbl">Outlook Score</span>
+    </div>
+    <div class="verdict-body">
+      <h2>2026: The Year AI Revenue Becomes Real Revenue</h2>
+      <p>ServiceNow enters 2026 with the clearest AI monetization proof points in enterprise software — Now Assist customers paying $1M+ in ACV grew 130% YoY. The company has raised full-year guidance after beating Q1 on every metric, closed two transformative acquisitions (Armis + Veza), and positioned itself as the unified AI control tower for agentic enterprise security, workflows, and CRM. The next three quarters will determine whether NOW re-rates to analyst targets or consolidates at current levels.</p>
+      <div class="verdict-pills">
+        <div class="vpill up">Beat-and-Raise Q1</div>
+        <div class="vpill up">Guidance Raised</div>
+        <div class="vpill up">22% Sub Rev Growth</div>
+        <div class="vpill risk">Armis Margin Headwind</div>
+        <div class="vpill warn">Geopolitical Drag ~75bps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIG NUMBERS -->
+  <div class="section-hd"><h3>2026 Full-Year Targets</h3></div>
+  <div class="big-nums">
+    <div class="bn-cell">
+      <div class="bn-label">Sub Revenue (FY Guide)</div>
+      <div class="bn-value">~$15.8B</div>
+      <div class="bn-sub">+22% YoY est. · Raised after Q1</div>
+      <div class="bn-badge g">↑ RAISED</div>
+    </div>
+    <div class="bn-cell">
+      <div class="bn-label">Non-GAAP Op. Margin</div>
+      <div class="bn-value">~30%</div>
+      <div class="bn-sub">75bps Armis headwind vs 31% 2025</div>
+      <div class="bn-badge a">SLIGHT DIP</div>
+    </div>
+    <div class="bn-cell">
+      <div class="bn-label">FCF Margin</div>
+      <div class="bn-value">~33%</div>
+      <div class="bn-sub">200bps Armis headwind on 35% 2025</div>
+      <div class="bn-badge a">SLIGHT DIP</div>
+    </div>
+    <div class="bn-cell">
+      <div class="bn-label">cRPO (Q1 Actual)</div>
+      <div class="bn-value">$12.6B</div>
+      <div class="bn-sub">+22.5% YoY · Next-12M contracted</div>
+      <div class="bn-badge g">ON TRACK</div>
+    </div>
+  </div>
+
+  <!-- Q-BY-Q -->
+  <div class="section-hd"><h3>Quarter-by-Quarter Breakdown</h3></div>
+  <div class="quarters">
+    <div class="q-grid">
+      <div class="q-card done" onclick="toggleQ('q1')">
+        <div class="q-status done"></div>
+        <div class="q-tag">✓ REPORTED</div>
+        <div class="q-name">Q1 2026</div>
+        <div class="q-rev">$3.77B</div>
+        <div class="q-growth">+22% YoY · Beat high end</div>
+      </div>
+      <div class="q-card active" onclick="toggleQ('q2')">
+        <div class="q-status live"></div>
+        <div class="q-tag live">● LIVE NOW</div>
+        <div class="q-name">Q2 2026</div>
+        <div class="q-rev">~$3.96B est.</div>
+        <div class="q-growth">+22.5% est. · Armis contributes</div>
+      </div>
+      <div class="q-card" onclick="toggleQ('q3')">
+        <div class="q-status future"></div>
+        <div class="q-tag">UPCOMING</div>
+        <div class="q-name">Q3 2026</div>
+        <div class="q-rev">~$4.15B est.</div>
+        <div class="q-growth">+23% est. · Full Armis run-rate</div>
+      </div>
+      <div class="q-card" onclick="toggleQ('q4')">
+        <div class="q-status future"></div>
+        <div class="q-tag">UPCOMING</div>
+        <div class="q-name">Q4 2026</div>
+        <div class="q-rev">~$4.32B est.</div>
+        <div class="q-growth">+23% est. · Strong seasonal close</div>
+      </div>
+    </div>
+
+    <div id="q1-detail" class="q-detail open">
+      <h4>Q1 2026 — Reported April 22, 2026 ✓</h4>
+      <ul>
+        <li>Total revenues $3,770M — beat high end of guidance; +22% YoY</li>
+        <li>Subscription revenues $3,671M — +22% YoY (+19% constant currency)</li>
+        <li>cRPO $12.64B — +22.5% YoY · near-term contracted backlog record</li>
+        <li>RPO $27.7B — +25% YoY · long-term visibility exceptional</li>
+        <li>16 deals over $5M net new ACV — nearly 80% YoY growth</li>
+        <li>Now Assist $1M+ ACV customers grew 130% YoY — AI monetization accelerating</li>
+        <li>Armis acquisition closed April 20 — cybersecurity TAM expansion begins</li>
+        <li>Veza acquisition closed March 2 — identity security layer added</li>
+        <li>Repurchased ~20.1M shares incl. $2B ASR; $4.2B buyback capacity remains</li>
+        <li>GAAP net income $469M vs $460M prior year; EPS $0.45 diluted</li>
+        <li>~75bps headwind from Middle East deal delays — factored into FY guide</li>
+      </ul>
+    </div>
+    <div id="q2-detail" class="q-detail">
+      <h4>Q2 2026 — In Progress (Reports ~July 22, 2026)</h4>
+      <ul>
+        <li>First full quarter consolidating Armis Security (~125bps sub rev contribution)</li>
+        <li>Armis expected to create ~125bps headwind to Q2 op margin as integration ramps</li>
+        <li>EmployeeWorks (Moveworks + ServiceNow) first full-quarter sales cycle in market</li>
+        <li>Context Engine and Autonomous Workforce Level 1 Service Desk agent market traction</li>
+        <li>Now Assist monetization cadence — watch ACV expansion in enterprise base</li>
+        <li>Google Cloud 2026 Partner of Year deal — co-sell pipeline builds through Q2</li>
+        <li>US Government / GSA OneGov pipeline — federal buying cycle Q2–Q3 typically accelerates</li>
+        <li>Watch: subscription gross margin (guided slight decline vs 2025 from Armis)</li>
+        <li>Watch: FCF — 200bps headwind from Armis, expect operating CF ~$1.5B+</li>
+      </ul>
+    </div>
+    <div id="q3-detail" class="q-detail">
+      <h4>Q3 2026 — Forecasted (Reports ~October 2026)</h4>
+      <ul>
+        <li>Armis fully integrated — security platform revenue runs at full contribution rate</li>
+        <li>CRM expansion via Logik.ai CPQ — first enterprise sales cycles completing</li>
+        <li>AI efficiencies from "Now on Now" begin normalizing margin headwinds</li>
+        <li>Federal fiscal year-end (Sept 30) — historically strong quarter for gov contracts</li>
+        <li>NVIDIA Autonomous Workforce integrations — expect customer announcements</li>
+        <li>Healthcare Operations product — hospital system go-lives generate case studies</li>
+        <li>Industrial Connected Workforce — manufacturing vertical expansion</li>
+        <li>Guidance raise expected if AI monetization tracks above plan (pattern: 7 straight quarters)</li>
+      </ul>
+    </div>
+    <div id="q4-detail" class="q-detail">
+      <h4>Q4 2026 — Forecasted (Reports ~January 2027)</h4>
+      <ul>
+        <li>Seasonally strongest new bookings quarter — historically large enterprise deals close</li>
+        <li>Full-year subscription revenue target ~$15.7–15.9B (raised from initial FY guide)</li>
+        <li>Armis margin headwinds fully anniversaried — margin expansion resumes</li>
+        <li>2027 guidance issued — will signal AI monetization inflection or deceleration</li>
+        <li>$5B buyback program (additional $4.2B remaining as of Q1) — expect continued execution</li>
+        <li>Now Assist installed-base monetization — renewal pricing power test</li>
+        <li>Stock split anniversary — 12 months post 5:1 split, retail ownership deepened</li>
+        <li>Potential: new product announcements at Knowledge 2026 / Year-end events</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- STRATEGIC PILLARS -->
+  <div class="section-hd"><h3>5 Strategic Pillars for 2026</h3></div>
+  <div class="pillars">
+    <div class="pillar teal">
+      <div class="pillar-icon">🤖</div>
+      <div class="pillar-title">Agentic AI Monetization</div>
+      <div class="pillar-body">The year Now Assist proves AI revenue isn't hype — 130% YoY growth in $1M+ ACV customers is the early proof point. 2026 is about scaling that across the base.</div>
+      <div class="pillar-items">
+        <div class="pillar-item"><span class="pi-dot t"></span><div><span class="pi-label">Autonomous Workforce</span> — L1 Service Desk agent shipping now<br><span class="pi-sub">End-to-end IT resolution without human touch</span></div></div>
+        <div class="pillar-item"><span class="pi-dot t"></span><div><span class="pi-label">Context Engine</span> — Organizational intelligence layer<br><span class="pi-sub">Grounds every AI decision in live enterprise context</span></div></div>
+        <div class="pillar-item"><span class="pi-dot t"></span><div><span class="pi-label">Build Agent Skills</span> — Developer platform for AI deployment<br><span class="pi-sub">Any tool, deploy directly to ServiceNow</span></div></div>
+      </div>
+    </div>
+
+    <div class="pillar red">
+      <div class="pillar-icon">🔐</div>
+      <div class="pillar-title">Unified Security Platform</div>
+      <div class="pillar-body">Armis + Veza + AI Control Tower creates a full-stack enterprise security layer that no competitor currently offers as a single platform. Massive TAM expansion.</div>
+      <div class="pillar-items">
+        <div class="pillar-item"><span class="pi-dot r"></span><div><span class="pi-label">Armis (closed Apr 2026)</span> — Real-time asset discovery<br><span class="pi-sub">$4B term loan used; adds cyber exposure management</span></div></div>
+        <div class="pillar-item"><span class="pi-dot r"></span><div><span class="pi-label">Veza (closed Mar 2026)</span> — Identity & access control<br><span class="pi-sub">Who can access what, across AI agents and systems</span></div></div>
+        <div class="pillar-item"><span class="pi-dot r"></span><div><span class="pi-label">AI Control Tower</span> — Governance + security hub<br><span class="pi-sub">NVIDIA + Cisco integrations already live</span></div></div>
+      </div>
+    </div>
+
+    <div class="pillar gold">
+      <div class="pillar-icon">💼</div>
+      <div class="pillar-title">CRM & Front-Office Push</div>
+      <div class="pillar-body">Moving from the back-office into Salesforce territory. Logik.ai CPQ + EmployeeWorks + CRM disruption is ServiceNow's most ambitious market expansion ever.</div>
+      <div class="pillar-items">
+        <div class="pillar-item"><span class="pi-dot g"></span><div><span class="pi-label">Logik.ai CPQ</span> — AI-native configure-price-quote<br><span class="pi-sub">Compete with Salesforce Revenue Cloud head-on</span></div></div>
+        <div class="pillar-item"><span class="pi-dot g"></span><div><span class="pi-label">EmployeeWorks</span> — Moveworks + ServiceNow front door<br><span class="pi-sub">Plain language → governed enterprise actions</span></div></div>
+        <div class="pillar-item"><span class="pi-dot g"></span><div><span class="pi-label">CRM Telecom</span> — NTT DOCOMO inter-carrier live<br><span class="pi-sub">First autonomous carrier boundary resolution</span></div></div>
+      </div>
+    </div>
+
+    <div class="pillar blue">
+      <div class="pillar-icon">🏛️</div>
+      <div class="pillar-title">Government & Public Sector</div>
+      <div class="pillar-body">The DOGE efficiency mandate is a structural tailwind. The GSA OneGov deal opens the entire federal government. This could be a $2–3B ARR opportunity over 5 years.</div>
+      <div class="pillar-items">
+        <div class="pillar-item"><span class="pi-dot b"></span><div><span class="pi-label">GSA OneGov Agreement</span> — All federal agencies<br><span class="pi-sub">Simplified licensing, agentic AI for public sector</span></div></div>
+        <div class="pillar-item"><span class="pi-dot b"></span><div><span class="pi-label">Government Transformation Suite</span><br><span class="pi-sub">AI-first modernization, faster agentic AI availability</span></div></div>
+        <div class="pillar-item"><span class="pi-dot b"></span><div><span class="pi-label">Forrester Wave Leader</span> — Public Sector Q1 2026<br><span class="pi-sub">Analyst credibility accelerates federal sales cycles</span></div></div>
+      </div>
+    </div>
+
+    <div class="pillar teal">
+      <div class="pillar-icon">🌐</div>
+      <div class="pillar-title">Industry Verticals at Scale</div>
+      <div class="pillar-body">Healthcare Operations, Industrial Connected Workforce, Telecom AI, and Supply Chain workflows are now shipping. Vertical depth creates pricing power and stickiness.</div>
+      <div class="pillar-items">
+        <div class="pillar-item"><span class="pi-dot t"></span><div><span class="pi-label">Healthcare Operations</span> — EMR integration<br><span class="pi-sub">TridentCare: 96% scheduling automation, 57% less wait</span></div></div>
+        <div class="pillar-item"><span class="pi-dot t"></span><div><span class="pi-label">Industrial Connected Workforce</span><br><span class="pi-sub">Factory floor digitization, QMS + warranty + orders</span></div></div>
+        <div class="pillar-item"><span class="pi-dot t"></span><div><span class="pi-label">Telecom</span> — Bell Canada: 25% faster response<br><span class="pi-sub">ServiceNow CRM + Autonomous Workforce live</span></div></div>
+      </div>
+    </div>
+
+    <div class="pillar red">
+      <div class="pillar-icon">💰</div>
+      <div class="pillar-title">Capital Returns & Discipline</div>
+      <div class="pillar-body">$5B buyback authorization (additional), $2B ASR already executed. ServiceNow is deploying capital aggressively to manage SBC dilution and signal conviction in the stock.</div>
+      <div class="pillar-items">
+        <div class="pillar-item"><span class="pi-dot r"></span><div><span class="pi-label">$2B Accelerated Share Repurchase</span> — Complete Q1<br><span class="pi-sub">18.5M shares retired; anti-dilutive</span></div></div>
+        <div class="pillar-item"><span class="pi-dot r"></span><div><span class="pi-label">$4.2B remaining</span> — Buyback authorization as of Q1<br><span class="pi-sub">No expiry; management has full discretion</span></div></div>
+        <div class="pillar-item"><span class="pi-dot r"></span><div><span class="pi-label">Rule of 55+</span> — Rev growth + op margin target<br><span class="pi-sub">22% growth + 31% non-GAAP op margin = 53 (on target)</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACQUISITIONS -->
+  <div class="section-hd"><h3>2026 Acquisitions Deep-Dive</h3></div>
+  <div class="acq-grid">
+    <div class="acq-card">
+      <div class="acq-tag closed">Closed Apr 20, 2026</div>
+      <div class="acq-name">Armis Security</div>
+      <div class="acq-body">Real-time asset discovery and cyber exposure management. Armis knows every device on an enterprise network — managed, unmanaged, OT, IoT — and continuously tracks their security posture. Combined with ServiceNow's AI Control Tower, this creates the only platform that can <em>see</em> a threat, <em>decide</em> on a response, and <em>act</em> through automated workflows — all in one system.</div>
+      <div class="acq-why">Funded via: <span>$4B JPMorgan term loan (Oct 2026 maturity)</span></div>
+      <div class="acq-why">2026 impact: <span>+125bps sub rev contribution; -75bps op margin; -200bps FCF margin (integration costs). Normalizes in 2027.</span></div>
+    </div>
+    <div class="acq-card">
+      <div class="acq-tag closed">Closed Mar 2, 2026</div>
+      <div class="acq-name">Veza</div>
+      <div class="acq-body">Identity security fabric — answers the question "who and what can access critical data, applications, and AI agents?" In an agentic AI world where non-human identities (AI agents) proliferate, Veza's access intelligence becomes mission-critical. This is the identity governance layer that enterprises need to safely deploy hundreds of AI agents without losing control.</div>
+      <div class="acq-why">Strategic fit: <span>Extends AI Control Tower's governance capabilities into identity security. Complements Armis (asset visibility) + Veza (access control) = full security stack.</span></div>
+    </div>
+  </div>
+
+  <!-- AI FLYWHEEL -->
+  <div class="section-hd"><h3>The 2026 AI Flywheel</h3></div>
+  <div class="flywheel">
+    <h3>Why AI Growth Compounds, Not Fades</h3>
+    <p>ServiceNow's 2026 AI thesis isn't a feature — it's a compounding flywheel where each layer amplifies the others.</p>
+    <div class="fw-grid">
+      <div class="fw-cell">
+        <div class="fw-arrow">1 →</div>
+        <div class="fw-title">Platform Data Moat</div>
+        <div class="fw-body">85B workflows + 7T transactions = AI training no competitor can replicate. Better AI = stickier platform.</div>
+      </div>
+      <div class="fw-cell">
+        <div class="fw-arrow">2 →</div>
+        <div class="fw-title">AI Monetization</div>
+        <div class="fw-body">Now Assist goes from upsell to standard. 130% growth in $1M+ ACV customers. Every user = an AI agent opportunity.</div>
+      </div>
+      <div class="fw-cell">
+        <div class="fw-arrow">3 →</div>
+        <div class="fw-title">Expansion Revenue</div>
+        <div class="fw-body">125%+ NRR means existing customers keep spending more. Agentic AI workflows replace human labor → ROI → expansion.</div>
+      </div>
+      <div class="fw-cell">
+        <div class="fw-arrow">4 →</div>
+        <div class="fw-title">Platform Lock-In</div>
+        <div class="fw-body">Security (Armis+Veza) + CRM + ITSM + HRSD = switching cost measured in years. Churn near 0% (98% renewal rate).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESS vs TARGETS -->
+  <div class="section-hd"><h3>2026 Progress vs Plan</h3></div>
+  <div class="prog-section">
+    <div class="prog-row">
+      <div class="prog-label">Subscription Revenue Growth (22% target)</div>
+      <div class="prog-track"><div class="prog-fill teal" style="width:100%"></div></div>
+      <div class="prog-val" style="color:var(--teal)">✓ 22%</div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-label">cRPO Growth (20%+ target)</div>
+      <div class="prog-track"><div class="prog-fill teal" style="width:100%"></div></div>
+      <div class="prog-val" style="color:var(--teal)">✓ 22.5%</div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-label">Now Assist $1M+ ACV Customers (100%+ target)</div>
+      <div class="prog-track"><div class="prog-fill teal" style="width:100%"></div></div>
+      <div class="prog-val" style="color:var(--teal)">✓ 130%</div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-label">Large Deals $5M+ net new ACV (50%+ target)</div>
+      <div class="prog-track"><div class="prog-fill teal" style="width:100%"></div></div>
+      <div class="prog-val" style="color:var(--teal)">✓ 80%</div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-label">Non-GAAP Op Margin (~30% target, was 31%)</div>
+      <div class="prog-track"><div class="prog-fill teal" style="width:91%"></div></div>
+      <div class="prog-val" style="color:var(--teal)">31% Q1</div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-label">Share Buyback ($5B total, $2B ASR in Q1)</div>
+      <div class="prog-track"><div class="prog-fill blue" style="width:16%"></div></div>
+      <div class="prog-val" style="color:var(--blue)">$0.8B done</div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-label">Armis Integration (Op margin headwind -75bps)</div>
+      <div class="prog-track"><div class="prog-fill amber" style="width:25%"></div></div>
+      <div class="prog-val" style="color:var(--amber)">Absorbing</div>
+    </div>
+    <div class="prog-row">
+      <div class="prog-label">CRM Revenue Contribution (new in 2026)</div>
+      <div class="prog-track"><div class="prog-fill amber" style="width:10%"></div></div>
+      <div class="prog-val" style="color:var(--amber)">Early</div>
+    </div>
+  </div>
+
+  <!-- SHARE BUYBACK -->
+  <div class="section-hd"><h3>Capital Return Program</h3></div>
+  <div class="buyback">
+    <div class="bb-cell">
+      <div class="bb-label">Total Buyback Authorization</div>
+      <div class="bb-val">$5B</div>
+      <div class="bb-note">Additional auth (Jan 2026) on top of prior program. No expiry date.</div>
+    </div>
+    <div class="bb-cell">
+      <div class="bb-label">Q1 Shares Repurchased</div>
+      <div class="bb-val">20.1M</div>
+      <div class="bb-note">18.5M via $2B ASR + 1.6M open market ($225M). Anti-dilution focus.</div>
+    </div>
+    <div class="bb-cell">
+      <div class="bb-label">Remaining Capacity</div>
+      <div class="bb-val">~$4.2B</div>
+      <div class="bb-note">As of end Q1. Expect continued execution through 2026 at market discretion.</div>
+    </div>
+  </div>
+
+  <!-- RISKS TABLE -->
+  <div class="section-hd"><h3>2026 Risk Register</h3></div>
+  <div class="risks-table">
+    <table>
+      <tr>
+        <th>Risk</th>
+        <th>Description</th>
+        <th>Severity</th>
+        <th>Mitigation</th>
+      </tr>
+      <tr>
+        <td><div class="risk-label">Armis Integration</div></td>
+        <td class="risk-desc">-75bps op margin + -200bps FCF margin in FY2026 as Armis is absorbed. Cultural and tech stack integration complexity.</td>
+        <td><div class="risk-pill med">MEDIUM</div></td>
+        <td>Guided explicitly; normalizes in FY2027. $4B term loan matures Oct 2026 — refinanced via notes offering.</td>
+      </tr>
+      <tr>
+        <td><div class="risk-label">Middle East Geopolitics</div></td>
+        <td class="risk-desc">~75bps revenue headwind in Q1 from delayed large on-prem deals. Conflict continues to create deal-timing unpredictability.</td>
+        <td><div class="risk-pill med">MEDIUM</div></td>
+        <td>Factored into full-year guidance conservatively. Not a cancellation — a delay. Expect these to close in Q2/Q3.</td>
+      </tr>
+      <tr>
+        <td><div class="risk-label">CRM Execution</div></td>
+        <td class="risk-desc">CRM is NOW's most ambitious market entry. Salesforce has entrenched relationships. Revenue contribution will be minimal in 2026.</td>
+        <td><div class="risk-pill med">MEDIUM</div></td>
+        <td">2026 is a land year, not a harvest year. The real test is 2027 renewals and expansion.</td>
+      </tr>
+      <tr>
+        <td><div class="risk-label">Microsoft Copilot Bundling</div></td>
+        <td class="risk-desc">MSFT bundles Copilot into M365 at near-zero marginal cost, potentially suppressing ServiceNow's AI upsell in MSFT-heavy accounts.</td>
+        <td><div class="risk-pill med">MEDIUM</div></td>
+        <td>NOW + MSFT are officially co-selling (Agent 365 integration). Network effect is additive, not competitive, for now.</td>
+      </tr>
+      <tr>
+        <td><div class="risk-label">Macro / Enterprise IT Spend</div></td>
+        <td class="risk-desc">Recession or CFO budget freezes historically cut discretionary IT spend. Workflow automation is "nice to have" for some buyers.</td>
+        <td><div class="risk-pill low">LOW</div></td>
+        <td>$12.6B cRPO = contracted revenue. ITSM/HRSD are operationally essential. AI ROI narrative reduces discretionary perception.</td>
+      </tr>
+      <tr>
+        <td><div class="risk-label">Debt Load (Armis Financing)</div></td>
+        <td class="risk-desc">$4B term loan + note issuance raises leverage. NOW had near-zero debt before 2026. Interest expense increases.</td>
+        <td><div class="risk-pill low">LOW</div></td>
+        <td">$4.6B FCF in 2025 vs ~$7.7B post-Armis debt. Debt/FCF ~1.7x — very manageable. Investment-grade credit profile.</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="section-hd"><h3>Analyst Summary</h3></div>
+  <div class="summary">
+    <div class="summary-hed">2026: The year ServiceNow proves that AI is not just a feature — it's a new revenue stream.</div>
+    <p><strong>What's working:</strong> Q1 beat the high end of guidance on every metric — subscription revenue grew 22%, cRPO hit $12.64B (+22.5%), and Now Assist customers paying over $1M in ACV grew 130% year-over-year. The AI monetization thesis is no longer theoretical. It's in the numbers.</p>
+    <p><strong>The big bet:</strong> Two security acquisitions (Armis + Veza) closed in Q1, creating the only unified platform that can discover every enterprise asset, govern every identity, and automate every security response through a single workflow engine. Management guided these will compress margins in 2026 but expects AI efficiencies from "Now on Now" to normalize margin expansion trajectories in FY2027.</p>
+    <p><strong>What to watch:</strong> The Board authorized an additional $5 billion for share repurchases with a $2B accelerated share repurchase executed immediately — signaling management believes the stock is undervalued at current levels. The Q2 report (~July 22) will be the first true test of Armis integration and whether the 130% Now Assist growth rate is sustainable or a one-quarter surge.</p>
+    <p><strong>The verdict:</strong> ServiceNow's 2026 plan is aggressive but credible. A 22% growth company trading at 24x forward earnings, generating 32%+ FCF margins, with $12.6B in contracted near-term backlog, executing beat-and-raise for 7+ consecutive quarters — the only real question is <em>when</em> the market re-rates, not <em>if</em>.</p>
+  </div>
+
+  <footer>
+    ServiceNow (NYSE: NOW) · 2026 Year Plan · Data: SEC Filings Q1 2026 (April 22, 2026), FY2025 Annual Report, Proxy Statement May 2026<br>
+    For informational purposes only. Not financial advice. Always conduct independent due diligence before investing.
+  </footer>
+
+</div>
+
+<script>
+  // Q toggle
+  let openQ = 'q1';
+  function toggleQ(q) {
+    // Close current
+    const cur = document.getElementById(openQ + '-detail');
+    const curCard = document.querySelector('.q-card.done, .q-card.active');
+    if (cur) cur.classList.remove('open');
+
+    document.querySelectorAll('.q-card').forEach(c => c.classList.remove('active'));
+
+    if (openQ === q) {
+      openQ = null; return;
+    }
+
+    const el = document.getElementById(q + '-detail');
+    if (el) el.classList.add('open');
+    event.currentTarget.classList.add('active');
+    openQ = q;
+  }
+
+  // Animate progress bars
+  window.addEventListener('load', () => {
+    const fills = document.querySelectorAll('.prog-fill');
+    fills.forEach(f => {
+      const w = f.style.width;
+      f.style.width = '0';
+      setTimeout(() => f.style.width = w, 400);
+    });
+  });
+</script>
+
+</body>
+</html>

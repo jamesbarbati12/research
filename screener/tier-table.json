@@ -1,0 +1,292 @@
+{
+  "_meta": {
+    "description": "Phase 1 tier table. All avg_move_pct/hit_rate values are reasonable-default placeholders, not calibrated from historical price data. tier 1 = highest expected impact, tier 4 = lowest.",
+    "tier_scale": {
+      "1": "Large, often binary price impact (>5% typical)",
+      "2": "Meaningful directional impact (2-5% typical)",
+      "3": "Modest impact, usually needs confirmation (1-2% typical)",
+      "4": "Marginal/noise-level impact (<1% typical)"
+    },
+    "avg_move_pct": "Expected absolute price move (%) for a mid-cap-bucket ticker, before the market-cap multiplier is applied",
+    "hit_rate": "Placeholder estimate of how often the category produces a move in the expected direction beyond noise"
+  },
+  "categories": {
+    "earnings_beat": {
+      "label": "Earnings Beat",
+      "tier": 2,
+      "avg_move_pct": 3.5,
+      "hit_rate": 0.68,
+      "placeholder": true,
+      "description": "Reported EPS/revenue beats consensus estimates"
+    },
+    "earnings_miss": {
+      "label": "Earnings Miss",
+      "tier": 2,
+      "avg_move_pct": 4.0,
+      "hit_rate": 0.7,
+      "placeholder": true,
+      "description": "Reported EPS/revenue misses consensus estimates"
+    },
+    "guidance_raise": {
+      "label": "Guidance Raised",
+      "tier": 2,
+      "avg_move_pct": 3.22,
+      "hit_rate": 0.6,
+      "placeholder": false,
+      "description": "Company raises forward guidance/outlook",
+      "calibrated_n": 5,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 1
+    },
+    "guidance_cut": {
+      "label": "Guidance Cut",
+      "tier": 1,
+      "avg_move_pct": 6.0,
+      "hit_rate": 0.75,
+      "placeholder": true,
+      "description": "Company cuts/withdraws forward guidance"
+    },
+    "ma_definitive_agreement": {
+      "label": "M&A Deal Confirmed",
+      "tier": 3,
+      "avg_move_pct": 1.63,
+      "hit_rate": 0.27,
+      "placeholder": false,
+      "description": "Signed/confirmed M&A, acquisition, or merger agreement",
+      "calibrated_n": 26,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 1
+    },
+    "fda_decision": {
+      "label": "FDA Decision",
+      "tier": 1,
+      "avg_move_pct": 12.0,
+      "hit_rate": 0.8,
+      "placeholder": true,
+      "description": "FDA approval, rejection (CRL), or major trial readout"
+    },
+    "bankruptcy_restructuring": {
+      "label": "Bankruptcy / Restructuring",
+      "tier": 1,
+      "avg_move_pct": 20.0,
+      "hit_rate": 0.85,
+      "placeholder": true,
+      "description": "Bankruptcy filing, going-concern warning, or major restructuring"
+    },
+    "regulatory_legal_action": {
+      "label": "Regulatory Action",
+      "tier": 2,
+      "avg_move_pct": 4.5,
+      "hit_rate": 0.6,
+      "placeholder": true,
+      "description": "SEC/FTC/DOJ investigation, fine, subpoena, or enforcement action"
+    },
+    "legal_settlement": {
+      "label": "Legal Settlement",
+      "tier": 2,
+      "avg_move_pct": 2.68,
+      "hit_rate": 0.33,
+      "placeholder": false,
+      "description": "Litigation settlement or major legal resolution",
+      "calibrated_n": 6,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
+    },
+    "executive_change": {
+      "label": "Executive Change",
+      "tier": 2,
+      "avg_move_pct": 2.5,
+      "hit_rate": 0.5,
+      "placeholder": true,
+      "description": "CEO/CFO resignation, termination, or appointment"
+    },
+    "analyst_upgrade": {
+      "label": "Analyst Upgrade",
+      "tier": 3,
+      "avg_move_pct": 1.89,
+      "hit_rate": 0.5,
+      "placeholder": false,
+      "description": "Sell-side rating upgrade or price target raise",
+      "calibrated_n": 24,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
+    },
+    "analyst_downgrade": {
+      "label": "Analyst Downgrade",
+      "tier": 2,
+      "avg_move_pct": 2.28,
+      "hit_rate": 0.73,
+      "placeholder": false,
+      "description": "Sell-side rating downgrade or price target cut",
+      "calibrated_n": 41,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 3
+    },
+    "dividend_change": {
+      "label": "Dividend Change",
+      "tier": 3,
+      "avg_move_pct": 1.5,
+      "hit_rate": 0.5,
+      "placeholder": true,
+      "description": "Dividend initiation, increase, cut, or suspension"
+    },
+    "buyback_announced": {
+      "label": "Buyback Announced",
+      "tier": 3,
+      "avg_move_pct": 1.2,
+      "hit_rate": 0.45,
+      "placeholder": true,
+      "description": "Share repurchase program announced or expanded"
+    },
+    "sec_filing_8k_material": {
+      "label": "SEC Filing (8-K)",
+      "tier": 1,
+      "avg_move_pct": 9.98,
+      "hit_rate": 0.73,
+      "placeholder": false,
+      "description": "8-K material event filing (catch-all when sub-type isn't otherwise classified)",
+      "calibrated_n": 1976,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 2
+    },
+    "sec_filing_13d_activist": {
+      "label": "Activist Stake (13D)",
+      "tier": 2,
+      "avg_move_pct": 4.0,
+      "hit_rate": 0.6,
+      "placeholder": true,
+      "description": "Schedule 13D \u2014 activist/control-intent stake disclosure"
+    },
+    "sec_filing_13g_passive": {
+      "label": "Passive Stake (13G)",
+      "tier": 4,
+      "avg_move_pct": 0.5,
+      "hit_rate": 0.3,
+      "placeholder": true,
+      "description": "Schedule 13G \u2014 passive institutional stake disclosure"
+    },
+    "insider_form4": {
+      "label": "Insider Trade (Form 4)",
+      "tier": 4,
+      "avg_move_pct": 0.5,
+      "hit_rate": 0.3,
+      "placeholder": true,
+      "description": "Form 4 insider buy/sell"
+    },
+    "product_launch": {
+      "label": "Product Launch",
+      "tier": 3,
+      "avg_move_pct": 1.37,
+      "hit_rate": 0.28,
+      "placeholder": false,
+      "description": "New product/service launch announcement",
+      "calibrated_n": 18,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
+    },
+    "partnership_announced": {
+      "label": "Partnership Announced",
+      "tier": 2,
+      "avg_move_pct": 2.0,
+      "hit_rate": 0.38,
+      "placeholder": false,
+      "description": "Commercial partnership, supply deal, or joint venture",
+      "calibrated_n": 26,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 3
+    },
+    "stock_split": {
+      "label": "Stock Split",
+      "tier": 4,
+      "avg_move_pct": 0.09,
+      "hit_rate": 0.0,
+      "placeholder": false,
+      "description": "Stock split or reverse split announcement",
+      "calibrated_n": 6,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
+    },
+    "rumor_speculation": {
+      "label": "Rumor / Unconfirmed Report",
+      "tier": 3,
+      "avg_move_pct": 1.68,
+      "hit_rate": 0.36,
+      "placeholder": false,
+      "description": "Unconfirmed reports: \"sources say\", \"in talks to\", \"considering\", \"exploring options\". Often the biggest surprise-driven move in the whole story, since the later confirmation is already priced in.",
+      "new_in_phase_1": true,
+      "calibrated_n": 81,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 1
+    },
+    "media_anticipation": {
+      "label": "Pre-Event Buildup",
+      "tier": 2,
+      "avg_move_pct": 2.43,
+      "hit_rate": 0.59,
+      "placeholder": false,
+      "description": "Buildup coverage ahead of a scheduled event: pre-earnings previews, Fed-meeting previews, analyst previews ahead of a product launch.",
+      "new_in_phase_1": true,
+      "calibrated_n": 63,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
+    },
+    "social_sentiment_spike": {
+      "label": "Social Media Spike",
+      "tier": 3,
+      "avg_move_pct": 2.5,
+      "hit_rate": 0.35,
+      "placeholder": true,
+      "description": "Unusual mention-volume or sentiment shift on financial social media (X/Twitter, Reddit) without a corresponding formal news item.",
+      "new_in_phase_1": true
+    },
+    "rumor_denial": {
+      "label": "Rumor Denied",
+      "tier": 4,
+      "avg_move_pct": 0.81,
+      "hit_rate": 0.0,
+      "placeholder": false,
+      "description": "Company or official denial of a prior rumor. Tracked separately since denials move price too, often reversing a large fraction of the rumor's move.",
+      "new_in_phase_1": true,
+      "calibrated_n": 5,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00",
+      "tier_reassigned_from": 2
+    },
+    "unclassified": {
+      "label": "Unclassified",
+      "tier": 4,
+      "avg_move_pct": 2.05,
+      "hit_rate": 0.4,
+      "placeholder": false,
+      "description": "Fallback bucket: low-confidence regex match pending LLM classification, or LLM classification unavailable",
+      "calibrated_n": 4031,
+      "calibrated_at": "2026-08-18T04:07:55.775685+00:00"
+    }
+  },
+  "market_cap_buckets": {
+    "mega": {
+      "min_usd": 200000000000,
+      "multiplier": 0.6,
+      "description": ">= $200B"
+    },
+    "large": {
+      "min_usd": 10000000000,
+      "multiplier": 0.85,
+      "description": "$10B - $200B"
+    },
+    "mid": {
+      "min_usd": 2000000000,
+      "multiplier": 1.1,
+      "description": "$2B - $10B"
+    },
+    "small": {
+      "min_usd": 300000000,
+      "multiplier": 1.4,
+      "description": "$300M - $2B"
+    },
+    "micro": {
+      "min_usd": 0,
+      "multiplier": 1.8,
+      "description": "< $300M"
+    },
+    "unknown": {
+      "min_usd": null,
+      "multiplier": 1.0,
+      "description": "Market cap not yet resolved for this ticker"
+    }
+  }
+}
